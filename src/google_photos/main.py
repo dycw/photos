@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum
 from enum import auto
+from functools import cached_property
+from itertools import chain
 from pathlib import Path
 from re import findall
 from typing import Iterator
@@ -44,11 +46,16 @@ class View:
     def __post_init__(self) -> None:
         assert self.path.is_file()
 
-    @property
+    @cached_property
+    def _path_json(self) -> Path:
+        path = self.path
+        return path.with_suffix("".join(chain(path.suffixes, [".json"])))
+
+    @cached_property
     def is_photo(self) -> bool:
         return self.type in {Type.heic, Type.jpeg, Type.jpg, Type.png}
 
-    @property
+    @cached_property
     def type(self) -> Type:
         (ext,) = findall(r"^\.(\w+)$", self.path.suffix.lower())
         return Type[ext]

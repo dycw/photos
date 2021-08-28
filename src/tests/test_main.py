@@ -1,8 +1,11 @@
 from __future__ import annotations
 
-from google_photos.main import ALL_FILES
+from pathlib import Path
+
+from hypothesis import given
+from hypothesis.strategies import sampled_from
+
 from google_photos.main import ALL_PATHS
-from google_photos.main import ALL_VIEWS
 from google_photos.main import ROOT
 from google_photos.main import Type
 from google_photos.main import View
@@ -16,12 +19,35 @@ def test_all_paths() -> None:
     assert len(ALL_PATHS) == 137552
 
 
-def test_all_files() -> None:
-    assert len(ALL_FILES) == 137147
+st_paths = sampled_from(ALL_PATHS)
 
 
-def test_all_views() -> None:
-    for view in ALL_VIEWS:
-        assert isinstance(view, View)
-        assert isinstance(view.is_photo, bool)
-        assert isinstance(view.type, Type)
+@given(path=st_paths)
+def test_st_paths(path: Path) -> None:
+    assert isinstance(path, Path)
+
+
+st_files = st_paths.filter(lambda x: x.is_file())
+
+
+@given(file=st_files)
+def test_st_files(file: Path) -> None:
+    assert file.is_file()
+
+
+st_views = st_files.map(View)
+
+
+@given(view=st_views)
+def test_st_views(view: View) -> None:
+    assert isinstance(view, View)
+    assert isinstance(view.is_photo, bool)
+    assert isinstance(view.type, Type)
+
+
+st_photos = st_views.filter(lambda x: x.is_photo)
+
+
+@given(photo=st_photos)
+def test_st_photos(photo: View) -> None:
+    assert photo.is_photo

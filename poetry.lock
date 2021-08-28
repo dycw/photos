@@ -503,6 +503,34 @@ python-versions = "*"
 flake8 = ">3.0.0"
 
 [[package]]
+name = "hypothesis"
+version = "6.17.0"
+description = "A library for property-based testing"
+category = "dev"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+attrs = ">=19.2.0"
+sortedcontainers = ">=2.1.0,<3.0.0"
+
+[package.extras]
+all = ["black (>=19.10b0)", "click (>=7.0)", "django (>=2.2)", "dpcontracts (>=0.4)", "lark-parser (>=0.6.5)", "libcst (>=0.3.16)", "numpy (>=1.9.0)", "pandas (>=0.25)", "pytest (>=4.6)", "python-dateutil (>=1.4)", "pytz (>=2014.1)", "redis (>=3.0.0)", "rich (>=9.0.0)", "importlib-resources (>=3.3.0)", "importlib-metadata (>=3.6)", "backports.zoneinfo (>=0.2.1)", "tzdata (>=2020.4)"]
+cli = ["click (>=7.0)", "black (>=19.10b0)", "rich (>=9.0.0)"]
+codemods = ["libcst (>=0.3.16)"]
+dateutil = ["python-dateutil (>=1.4)"]
+django = ["pytz (>=2014.1)", "django (>=2.2)"]
+dpcontracts = ["dpcontracts (>=0.4)"]
+ghostwriter = ["black (>=19.10b0)"]
+lark = ["lark-parser (>=0.6.5)"]
+numpy = ["numpy (>=1.9.0)"]
+pandas = ["pandas (>=0.25)"]
+pytest = ["pytest (>=4.6)"]
+pytz = ["pytz (>=2014.1)"]
+redis = ["redis (>=3.0.0)"]
+zoneinfo = ["importlib-resources (>=3.3.0)", "backports.zoneinfo (>=0.2.1)", "tzdata (>=2020.4)"]
+
+[[package]]
 name = "identify"
 version = "2.2.13"
 description = "File identification library for Python"
@@ -1389,6 +1417,14 @@ optional = false
 python-versions = ">=3.5"
 
 [[package]]
+name = "sortedcontainers"
+version = "2.4.0"
+description = "Sorted Containers -- Sorted List, Sorted Dict, Sorted Set"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "terminado"
 version = "0.11.1"
 description = "Tornado websocket backend for the Xterm.js Javascript terminal emulator library."
@@ -1547,7 +1583,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "0cb71f6cb758ec892363c2f3e9a0c6038dd27b129ad193d88359efd4c0888cf5"
+content-hash = "55e5123aefd9a0134ea5b2a3c7d13d1f3f7766adc2152d6ccc46c5f43e413b40"
 
 [metadata.files]
 anyio = [
@@ -1849,6 +1885,10 @@ flake8-string-format = [
 flake8-unused-arguments = [
     {file = "flake8-unused-arguments-0.0.6.tar.gz", hash = "sha256:1134b19e9be5b8a608b5097f65ab81b2d029509e4dbf1c093ecc5d449fbba0cc"},
     {file = "flake8_unused_arguments-0.0.6-py3-none-any.whl", hash = "sha256:5e71dac90cdf3476aabe5d56f791957ce4e075cbda9b10f94c3000168b5f637c"},
+]
+hypothesis = [
+    {file = "hypothesis-6.17.0-py3-none-any.whl", hash = "sha256:588f5ea6b075cd402bfe1573815c2f6003a3265c2e9e7a2774d556c16073dc6d"},
+    {file = "hypothesis-6.17.0.tar.gz", hash = "sha256:c79001c2f94788f18e1a1cae1292a8db4f588f3662b613d6a6455b9ea9bf31a1"},
 ]
 identify = [
     {file = "identify-2.2.13-py2.py3-none-any.whl", hash = "sha256:7199679b5be13a6b40e6e19ea473e789b11b4e3b60986499b1f589ffb03c217c"},
@@ -2291,6 +2331,10 @@ six = [
 sniffio = [
     {file = "sniffio-1.2.0-py3-none-any.whl", hash = "sha256:471b71698eac1c2112a40ce2752bb2f4a4814c22a54a3eed3676bc0f5ca9f663"},
     {file = "sniffio-1.2.0.tar.gz", hash = "sha256:c4666eecec1d3f50960c6bdf61ab7bc350648da6c126e3cf6898d8cd4ddcd3de"},
+]
+sortedcontainers = [
+    {file = "sortedcontainers-2.4.0-py2.py3-none-any.whl", hash = "sha256:a163dcaede0f1c021485e957a39245190e74249897e2ae4b2aa38595db237ee0"},
+    {file = "sortedcontainers-2.4.0.tar.gz", hash = "sha256:25caa5a06cc30b6b83d11423433f65d1f9d76c4c6a0c90e3379eaa43b9bfdb88"},
 ]
 terminado = [
     {file = "terminado-0.11.1-py3-none-any.whl", hash = "sha256:9e0457334863be3e6060c487ad60e0995fa1df54f109c67b24ff49a4f2f34df5"},
