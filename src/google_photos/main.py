@@ -5,9 +5,13 @@ from enum import Enum
 from enum import auto
 from functools import cached_property
 from itertools import chain
+from json import loads
 from pathlib import Path
 from re import findall
+from typing import Any
 from typing import Iterator
+
+from more_itertools import map_except
 
 
 ROOT = Path("/data/derek/Dropbox/Apps/Google Download Your Data/")
@@ -39,7 +43,7 @@ class Type(Enum):
     tgz = auto()
 
 
-@dataclass
+@dataclass(frozen=True)
 class View:
     path: Path
 
@@ -49,11 +53,19 @@ class View:
     @cached_property
     def _path_json(self) -> Path:
         path = self.path
+        return path.parent.joinpath(f"{path.name}.json")
         return path.with_suffix("".join(chain(path.suffixes, [".json"])))
 
     @cached_property
     def is_photo(self) -> bool:
         return self.type in {Type.heic, Type.jpeg, Type.jpg, Type.png}
+
+    @cached_property
+    def json_view(self) -> JsonView:
+        if self.type is Type.json:
+            return JsonView(self.path)
+        else:
+            raise TypeError(f"Invalid type: {self.type}")
 
     @cached_property
     def type(self) -> Type:
@@ -62,3 +74,22 @@ class View:
 
 
 ALL_VIEWS = list(map(View, ALL_FILES))
+
+
+@dataclass(frozen=True)
+class JsonView(View):
+    pass
+
+    @cached_property
+    def contents(self) -> dict[str, Any]:
+        with open(self.path) as file:
+            return loads(file.read())
+
+    @cached_property
+    def title(self) -> str:
+        return self.contents["title"]
+
+
+ALL_JSON_VIEWS: list[JsonView] = list(
+    map_except(lambda x: x.json_view, ALL_VIEWS, TypeError)
+)
