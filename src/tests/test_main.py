@@ -1,10 +1,11 @@
 from __future__ import annotations
 
-from google_photos.main import ALL_EXTS
 from google_photos.main import ALL_FILES
 from google_photos.main import ALL_PATHS
+from google_photos.main import ALL_VIEWS
 from google_photos.main import ROOT
-from google_photos.main import get_extension
+from google_photos.main import Type
+from google_photos.main import View
 
 
 def test_root() -> None:
@@ -19,26 +20,8 @@ def test_all_files() -> None:
     assert len(ALL_FILES) == 137147
 
 
-def test_all_suffixes() -> None:
-    assert ALL_EXTS == {
-        ".HEIC",
-        ".JPG",
-        ".MOV",
-        ".MP4",
-        ".PNG",
-        ".avi",
-        ".heic",
-        ".html",
-        ".jpeg",
-        ".jpg",
-        ".json",
-        ".mov",
-        ".mp4",
-        ".png",
-        ".tgz",
-    }
-
-
-def test_get_extension() -> None:
-    for file in ALL_FILES:
-        get_extension(file)
+def test_all_views() -> None:
+    for view in ALL_VIEWS:
+        assert isinstance(view, View)
+        assert isinstance(view.is_photo, bool)
+        assert isinstance(view.type, Type)

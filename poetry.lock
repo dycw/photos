@@ -874,7 +874,7 @@ python-versions = "*"
 name = "more-itertools"
 version = "8.8.0"
 description = "More routines for operating on iterables, beyond itertools"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.5"
 
@@ -1547,7 +1547,7 @@ testing = ["pytest (>=4.6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytes
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "75ef42bd60483e85dbc1e7655564689951b91bcf1d4f3d7101ed45a8ba1b0f1b"
+content-hash = "0cb71f6cb758ec892363c2f3e9a0c6038dd27b129ad193d88359efd4c0888cf5"
 
 [metadata.files]
 anyio = [

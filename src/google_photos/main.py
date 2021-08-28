@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from enum import Enum
 from enum import auto
 from pathlib import Path
@@ -21,10 +22,9 @@ def _recursive_iterdir(path: Path) -> Iterator[Path]:
 
 ALL_PATHS = list(_recursive_iterdir(ROOT))
 ALL_FILES = [path for path in ALL_PATHS if path.is_file()]
-ALL_EXTS = {file.suffix for file in ALL_FILES}
 
 
-class Extension(Enum):
+class Type(Enum):
     avi = auto()
     heic = auto()
     html = auto()
@@ -37,6 +37,21 @@ class Extension(Enum):
     tgz = auto()
 
 
-def get_extension(path: Path) -> Extension:
-    (ext,) = findall(r"^\.(\w+)$", path.suffix.lower())
-    return Extension[ext]
+@dataclass
+class View:
+    path: Path
+
+    def __post_init__(self) -> None:
+        assert self.path.is_file()
+
+    @property
+    def is_photo(self) -> bool:
+        return self.type in {Type.heic, Type.jpeg, Type.jpg, Type.png}
+
+    @property
+    def type(self) -> Type:
+        (ext,) = findall(r"^\.(\w+)$", self.path.suffix.lower())
+        return Type[ext]
+
+
+ALL_VIEWS = list(map(View, ALL_FILES))
