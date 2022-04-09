@@ -2,15 +2,14 @@
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
-
 [tool.black]
 line-length = 80
 skip-magic-trailing-comma = true
-target-version = ["py39"]
-
+target-version = ["py310"]
 
 [tool.isort]
 atomic = true
+float_to_top = true
 force_single_line = true
 line_length = 80
 lines_after_imports = 2
@@ -20,61 +19,67 @@ skip_gitignore = true
 src_paths = ["src"]
 virtual_env = ".venv/bin/python"
 
-
 [tool.poetry]
 name = "google-photos"
-version = "0.0.0"
+version = "0.0.2"
 description = "Organize the Google Photos export"
 authors = ["Derek Wan <d.wan@icloud.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.9"
-exif = "^1.3.1"
-loguru = "^0.5.3"
-more-itertools = "^8.8.0"
+python = "^3.10"
+exif = "^1.3.4"
+loguru = "^0.6.0"
+more-itertools = "^8.12.0"
+qtconsole = "^5.3.0"
 
 [tool.poetry.dev-dependencies]
-black = "^21.6b0"
-flake8 = "^3.9.2"
-flake8-absolute-import = "^1.0"
-flake8-annotations = "^2.6.2"
-flake8-bugbear = "^21.4.3"
-flake8-builtins = "^1.5.3"
-flake8-comprehensions = "^3.5.0"
-flake8-debugger = "^4.0.0"
-flake8-eradicate = "^1.1.0"
-flake8-executable = "^2.1.1"
-flake8-future-import = "^0.4.6"
-flake8-implicit-str-concat = "^0.2.0"
-flake8-mutable = "^1.2.0"
-flake8-print = "^4.0.0"
-flake8-pytest-style = "^1.5.0"
-flake8-simplify = "^0.14.1"
-flake8-string-format = "^0.3.0"
-flake8-unused-arguments = "^0.0.6"
+black = "^22.3"
+flake8 = "^4.0"
 hypothesis = "^6.17.0"
-isort = "^5.9.1"
+isort = "^5.10"
 jupyterlab = "^3.1.9"
 jupyterlab-vim = "^0.14.2"
-pre-commit = "^2.13.0"
-pytest = "^6.2.4"
-pytest-randomly = "^3.8.0"
-pytest-xdist = "^2.3.0"
+pre-commit = "^2.16"
+pyclean = "^2.0"
+pytest = "^7.1"
+# flake8 extensions
+flake8-absolute-import = "^1.0"
+flake8-annotations = "^2.8"
+flake8-bandit = "^3.0"
+flake8-bugbear = "^22.3"
+flake8-builtins = "^1.5"
+flake8-comprehensions = "^3.8"
+flake8-debugger = "^4.0"
+flake8-eradicate = "^1.2"
+flake8-executable = "^2.1"
+flake8-no-pep420 = "^2.1"
+flake8-pie = "^0.15"
+flake8-print = "^4.0"
+flake8-pytest-style = "^1.6"
+flake8-simplify = "^0.19"
+flake8-unused-arguments = "^0.0"
+flake8-variables-names = "^0.0"
+pep8-naming = "^0.12"
+# pytest extensions
+pytest-instafail = "^0.4"
+pytest-randomly = "^3.8"
+pytest-xdist = "^2.3"
 
 [tool.poetry.scripts]
 
-
 [tool.pytest.ini_options]
-addopts = ["-q", "-rsxX", "--color=yes", "--strict-markers"]
-minversion = 6.0
-looponfailroots = ["src"]
-testpaths = ["src/tests"]
+addopts = ["-rsxX", "--color=auto", "--strict-markers"]
+filterwarnings = ["error", "ignore::DeprecationWarning"]
+minversion = "7.0"
+testpaths = "src/tests"
 xfail_strict = true
+looponfailroots = "src"
 
-log_level = "WARNING"
-log_cli_date_format = "%Y-%m-%d %H:%M:%S"
-log_cli_format = """\
-  [%(asctime)s.%(msecs)03d] [%(levelno)d] [%(name)s:%(funcName)s] \
-  [%(process)d]\n%(msg)s"""
-log_cli_level = "WARNING"
+[tool.pyright]
+include = ["src"]
+venvPath = ".venv"
+pythonVersion = "3.10"
+pythonPlatform = "Linux"
+executionEnvironments = [{ root = "src" }]
+typeCheckingMode = "strict"
