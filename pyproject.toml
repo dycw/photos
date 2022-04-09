@@ -21,7 +21,7 @@ virtual_env = ".venv/bin/python"
 
 [tool.poetry]
 name = "google-photos"
-version = "0.0.1"
+version = "0.0.2"
 description = "Organize the Google Photos export"
 authors = ["Derek Wan <d.wan@icloud.com>"]
 license = "MIT"
