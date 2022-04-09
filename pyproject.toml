@@ -35,7 +35,6 @@ qtconsole = "^5.3.0"
 
 [tool.poetry.dev-dependencies]
 black = "^22.3"
-# click = "~8.0.4" # https://github.com/dask/distributed/issues/6013
 flake8 = "^4.0"
 hypothesis = "^6.17.0"
 isort = "^5.10"
@@ -70,14 +69,17 @@ pytest-xdist = "^2.3"
 [tool.poetry.scripts]
 
 [tool.pytest.ini_options]
-addopts = ["-q", "-rsxX", "--color=yes", "--strict-markers"]
-minversion = 6.0
-looponfailroots = ["src"]
-testpaths = ["src/tests"]
+addopts = ["-rsxX", "--color=auto", "--strict-markers"]
+filterwarnings = ["error", "ignore::DeprecationWarning"]
+minversion = "7.0"
+testpaths = "src/tests"
 xfail_strict = true
-log_level = "WARNING"
-log_cli_date_format = "%Y-%m-%d %H:%M:%S"
-log_cli_format = """\
-  [%(asctime)s.%(msecs)03d] [%(levelno)d] [%(name)s:%(funcName)s] \
-  [%(process)d]\n%(msg)s"""
-log_cli_level = "WARNING"
+looponfailroots = "src"
+
+[tool.pyright]
+include = ["src"]
+venvPath = ".venv"
+pythonVersion = "3.10"
+pythonPlatform = "Linux"
+executionEnvironments = [{ root = "src" }]
+typeCheckingMode = "strict"
