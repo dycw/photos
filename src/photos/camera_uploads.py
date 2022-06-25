@@ -6,8 +6,9 @@ from dataclasses import dataclass
 from enum import Enum
 from enum import unique
 from pathlib import Path
+from random import shuffle
 from shutil import move
-from textwrap import indent
+from time import sleep
 from typing import Any
 
 from IPython.display import display
@@ -30,44 +31,81 @@ from photos.utilities import open_image
 class Organizer:
     """Base class for the organizer."""
 
-    __slots__ = ("_dir", "_data", "_rotate")
+    __slots__ = ("_dir", "_data", "_rotate", "_skips")
 
     def __init__(self) -> None:
         super().__init__()
         self._dir: Path | None = None
         self._data: _Data | None = None
         self._rotate: int = 0
+        self._skips: set[Path] = set()
 
     # properties
 
     @property
     def data(self) -> _Data:
         if (data := self._data) is None:
-            raise ValueError(f"{self._data=}")
+            raise AttributeError(f"{self._data=}")
         return data
+
+    @data.setter
+    def data(self, value: _Data, /) -> None:
+        self._data = value
 
     @property
     def dir(self) -> Path:
         if (dir := self._dir) is None:
-            raise ValueError(f"{self._dir=}")
+            raise AttributeError(f"{self._dir=}")
         return dir
+
+    @dir.setter
+    def dir(self, value: Path, /) -> None:
+        self._dir = Path(value)
+
+    @property
+    def rotate(self) -> int:
+        if (rotate := self._rotate) is None:
+            raise AttributeError(f"{self._rotate=}")
+        return rotate
+
+    @rotate.setter
+    def rotate(self, value: int, /) -> None:
+        _, self._rotate = divmod(self._rotate + value, 360)
+
+    @property
+    def skips(self) -> set[Path]:
+        if (skips := self._skips) is None:
+            raise AttributeError(f"{self._skips=}")
+        return skips
 
     # methods
 
     def start(self, dir: PathLike = PATH_CAMERA_UPLOADS, /) -> None:
-        self._dir = Path(dir)
+        self.dir = Path(dir)
         while True:
             try:
                 self._get_next_data()
             except _NoNextFileError:
-                logger.info("No more files found in {}", self.dir)
                 return
             else:
                 if self._loop_choices() is _Choice.quit:
                     return
 
+    def _choice_auto(self) -> None:
+        while True:
+            data = self.data
+            dt_data = data.datetime_data
+            if (dt_data is not None and dt_data.source == "EXIF") or (
+                data.tags.get("Make") == "Apple"
+            ):
+                self._choice_move()
+            else:
+                self._choice_skip()
+            sleep(1.0)
+
     def _choice_delete(self) -> None:
-        logger.warning("Deleting {}", path := self.data.path)
+        path = self.data.path
+        logger.warning("\n\nDeleting:\n{}\n\n", tabulate([("path", path)]))
         path.unlink()
         self._get_next_data()
 
@@ -78,37 +116,53 @@ class Organizer:
             data = self.data
             yield "path", data.path
             yield "file size", data.file_size
-            if (datetime_data := data.datetime_data) is None:
+            if (dt_data := data.datetime_data) is None:
                 yield "datetime", None
+                yield "source", None
             else:
-                yield "datetime", datetime_data.value
-                yield "source", datetime_data.source
+                yield "datetime", dt_data.value
+                yield "source", dt_data.source
             yield "resolution", data.resolution
+            tags = data.tags
+            with suppress(KeyError):
+                yield "make", tags["Make"]
+                yield "model", tags["Model"]
             yield "destination", data.destination
 
-        self._log("Metadata", yield_metadata())
+        logger.info("Metadata:\n{}", tabulate(yield_metadata()))
 
     def _choice_move(self) -> None:
         if (dest := (data := self.data).destination) is None:
             raise RuntimeError("Cannot call 'MOVE' when destination is missing")
-        self._log("Moving", [("from", fr := data.path), ("destination", dest)])
-        move(fr, dest)
+        path = data.path
+        logger.info(
+            "\n\nMoving:\n{}\n\n",
+            tabulate([("from", path), ("destination", dest)]),
+        )
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        move(path, dest)
         self._get_next_data()
 
     def _choice_rotate_180(self) -> None:
-        self._rotate = 180
+        self.rotate = 180
         self._choice_overview()
 
     def _choice_rotate_clockwise(self) -> None:
-        self._rotate = 90
+        self.rotate = -90
         self._choice_overview()
 
     def _choice_rotate_anticlockwise(self) -> None:
-        self._rotate = -90
+        self.rotate = 90
         self._choice_overview()
 
+    def _choice_skip(self) -> None:
+        path = self.data.path
+        logger.warning("\n\nSkipping:\n{}\n\n", tabulate([("path", path)]))
+        self.skips.add(path := self.data.path)
+        self._get_next_data()
+
     def _choice_tags(self) -> None:
-        self._log("Tags", self.data.tags.items())
+        logger.info("Tags:\n{}", tabulate(self.data.tags.items()))
 
     def _get_choice(self) -> _Choice:
         choices = {
@@ -117,40 +171,44 @@ class Organizer:
             if (c is not _Choice.move)
             or (c is _Choice.move and self.data.destination is not None)
         }
+        desc = ", ".join(f"{k}={v}" for k, v in choices.items())
         while True:
-            self._log("Select your choice:", choices.items())
+            logger.info("Select your choice: {}", desc)
             with suppress(KeyError):
-                return _Choice[choices[input("> ")]]
+                return _Choice[choices[input("> ").strip()]]
 
     def _get_next_data(self) -> None:
-        try:
-            path = next(p for p in sorted(self.dir.iterdir()) if is_jpg(p))
-        except StopIteration:
-            raise _NoNextFileError from None
-        else:
-            self._data = _Data(path)
+        paths = [
+            p for p in self.dir.iterdir() if is_jpg(p) and p not in self.skips
+        ]
+        if len(paths) >= 1:
+            shuffle(paths)
+            self.data = _Data(next(iter(paths)))
             self._choice_overview()
-
-    def _log(self, summary: str, details: Any, /) -> None:
-        tabulated = indent(tabulate(details), 10 * " ")
-        logger.info("{}:\n{}", summary, tabulated)
+        else:
+            logger.info("No more files found in {}", self.dir)
+            raise _NoNextFileError
 
     def _loop_choices(self) -> _Choice:
         while True:
             if (choice := self._get_choice()) is _Choice.overview:
                 self._choice_overview()
-            elif choice is _Choice.rotate_180:
-                self._choice_rotate_180()
             elif choice is _Choice.rotate_clockwise:
                 self._choice_rotate_clockwise()
             elif choice is _Choice.rotate_anticlockwise:
                 self._choice_rotate_anticlockwise()
+            elif choice is _Choice.rotate_180:
+                self._choice_rotate_180()
             elif choice is _Choice.tags:
                 self._choice_tags()
             elif choice is _Choice.move:
                 self._choice_move()
             elif choice is _Choice.delete:
                 self._choice_delete()
+            elif choice is _Choice.skip:
+                self._choice_skip()
+            elif choice is _Choice.auto:
+                self._choice_auto()
             elif choice is _Choice.quit:
                 return choice
             else:
@@ -177,12 +235,14 @@ class _Data:
 @unique
 class _Choice(Enum):
     overview = "o"
-    rotate_180 = "r"
-    rotate_clockwise = "rr"
-    rotate_anticlockwise = "rl"
+    rotate_clockwise = "r"
+    rotate_anticlockwise = "l"
+    rotate_180 = "rr"
     tags = "t"
     move = "m"
     delete = "d"
+    skip = "s"
+    auto = "auto"
     quit = "q"
 
 
