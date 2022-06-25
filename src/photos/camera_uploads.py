@@ -6,24 +6,24 @@ from dataclasses import dataclass
 from enum import Enum
 from enum import unique
 from pathlib import Path
-from shutil import move
-from time import sleep
 from typing import Any
 
 from IPython.display import display
+from boltons.fileutils import atomic_rename
 from dycw_utilities.pathlib import PathLike
 from humanize import naturalsize
 from loguru import logger
 from tabulate import tabulate
 
 from photos.constants import PATH_CAMERA_UPLOADS
-from photos.utilities import get_datetime_data
-from photos.utilities import get_destination
 from photos.utilities import get_file_size
 from photos.utilities import get_parsed_exif_tags
+from photos.utilities import get_path_monthly
+from photos.utilities import get_path_stash
 from photos.utilities import get_paths_randomly
 from photos.utilities import get_resolution
 from photos.utilities import is_jpg
+from photos.utilities import is_png
 from photos.utilities import make_thumbnail
 from photos.utilities import open_image
 from photos.utilities import purge_empty_directories
@@ -87,7 +87,7 @@ class Organizer:
             try:
                 self._get_next_data()
             except _NoNextFileError:
-                return
+                break
             else:
                 if self._loop_choices() is _Choice.quit:
                     break
@@ -96,22 +96,20 @@ class Organizer:
     def _choice_auto(self) -> _Choice:
         while True:
             data = self.data
-            dt_data = data.dt_data
+            dt_data = data.path_monthly
             try:
                 if (dt_data is not None and dt_data.source == "EXIF") or (
                     data.tags.get("Make") == "Apple"
                 ):
                     self._choice_move()
                 else:
-                    self._choice_skip()
+                    self._choice_stash()
             except _NoNextFileError:
                 return _Choice.quit
-            else:
-                sleep(0.01)
 
     def _choice_delete(self) -> None:
         path = self.data.path
-        logger.warning("\n\nDeleting:\n{}\n\n", tabulate([("path", path)]))
+        logger.info("\n\nDeleting:\n{}\n\n", tabulate([("path", path)]))
         path.unlink()
         self._get_next_data()
 
@@ -122,17 +120,11 @@ class Organizer:
             data = self.data
             yield "path", data.path
             yield "file size", data.file_size
-            if (dt_data := data.dt_data) is None:
-                yield "datetime", None
-                yield "source", None
-            else:
-                yield "datetime", dt_data.value
-                yield "source", dt_data.source
             yield "resolution", data.resolution
-            tags = data.tags
-            with suppress(KeyError):
-                yield "make", tags["Make"]
-                yield "model", tags["Model"]
+            yield "make", data.make
+            yield "model", data.model
+            yield "datetime", data.datetime
+            yield "source", data.source
             yield "destination", data.destination
 
         logger.info("Metadata:\n{}", tabulate(yield_metadata()))
@@ -146,7 +138,7 @@ class Organizer:
             tabulate([("from", path), ("destination", dest)]),
         )
         dest.parent.mkdir(parents=True, exist_ok=True)
-        move(path, dest)
+        atomic_rename(path, dest)
         self._get_next_data()
 
     def _choice_rotate_180(self) -> None:
@@ -163,8 +155,19 @@ class Organizer:
 
     def _choice_skip(self) -> None:
         path = self.data.path
-        logger.warning("\n\nSkipping:\n{}\n\n", tabulate([("path", path)]))
+        logger.info("\n\nSkipping:\n{}\n\n", tabulate([("path", path)]))
         self.skips.add(path := self.data.path)
+        self._get_next_data()
+
+    def _choice_stash(self) -> None:
+        path = (data := self.data).path
+        dest = data.path_stash
+        logger.info(
+            "\n\nStashing:\n{}\n\n",
+            tabulate([("path", path), ("destination", dest)]),
+        )
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        atomic_rename(path, dest)
         self._get_next_data()
 
     def _choice_tags(self) -> None:
@@ -188,7 +191,9 @@ class Organizer:
             path = next(
                 p
                 for p in get_paths_randomly(self.dir)
-                if p.is_file() and is_jpg(p) and p not in self.skips
+                if p.is_file()
+                and (is_jpg(p) or is_png(p))
+                and p not in self.skips
             )
         except StopIteration:
             logger.info("No more files found in {}", self.dir)
@@ -215,6 +220,8 @@ class Organizer:
                 self._choice_delete()
             elif choice is _Choice.skip:
                 self._choice_skip()
+            elif choice is _Choice.stash:
+                self._choice_stash()
             elif choice is _Choice.auto:
                 return self._choice_auto()
             elif choice is _Choice.quit:
@@ -234,10 +241,24 @@ class _Data:
     def __post_init__(self) -> None:
         self.image = image = open_image(path := self.path)
         self.file_size = naturalsize(get_file_size(path))
-        self.dt_data = dt_data = get_datetime_data(path, image=image)
         self.resolution = get_resolution(image)
         self.tags = get_parsed_exif_tags(image)
-        self.destination = get_destination(dt_data)
+        if (tags := self.tags) is None:
+            self.make = None
+            self.model = None
+        else:
+            self.make = tags.get("Make")
+            self.model = tags.get("Model")
+        self.path_monthly = get_path_monthly(path, image=image)
+        if (pm := self.path_monthly) is None:
+            self.datetime = None
+            self.source = None
+            self.destination = None
+        else:
+            self.datetime = pm.datetime
+            self.source = pm.source
+            self.destination = pm.destination
+        self.path_stash = get_path_stash(path)
 
 
 @unique
@@ -250,6 +271,7 @@ class _Choice(Enum):
     move = "m"
     delete = "d"
     skip = "s"
+    stash = "st"
     auto = "auto"
     quit = "q"
 

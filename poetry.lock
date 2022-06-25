@@ -189,6 +189,14 @@ css = ["tinycss2 (>=1.1.0)"]
 dev = ["pip-tools (==6.5.1)", "pytest (==7.1.1)", "flake8 (==4.0.1)", "tox (==3.24.5)", "sphinx (==4.3.2)", "twine (==4.0.0)", "wheel (==0.37.1)", "hashin (==0.17.0)", "black (==22.3.0)", "mypy (==0.942)"]
 
 [[package]]
+name = "boltons"
+version = "21.0.0"
+description = "When they're not builtins, they're boltons."
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "bump2version"
 version = "1.0.1"
 description = "Version-bump your software with a single command!"
@@ -565,7 +573,7 @@ flake8 = ">3.0.0"
 name = "gitdb"
 version = "4.0.9"
 description = "Git Object Database"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 
@@ -576,7 +584,7 @@ smmap = ">=3.0.1,<6"
 name = "gitpython"
 version = "3.1.27"
 description = "GitPython is a python library used to interact with Git repositories"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 
@@ -1403,6 +1411,14 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
 
 [[package]]
+name = "pyexiv2"
+version = "2.7.1"
+description = "Read/Write metadata(including EXIF, IPTC, XMP), comment and ICC Profile embedded in digital images."
+category = "main"
+optional = false
+python-versions = ">=3.5"
+
+[[package]]
 name = "pyflakes"
 version = "2.4.0"
 description = "passive checker of Python programs"
@@ -1716,7 +1732,7 @@ python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*"
 name = "smmap"
 version = "5.0.0"
 description = "A pure Python implementation of a sliding window memory map manager"
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.6"
 
@@ -1964,7 +1980,7 @@ atomicwrites = ">=1.4.0,<2.0.0"
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "2883fdfe59988dd317c9c92307cd01b80e6a85b45b7140cf5679cf881498386d"
+content-hash = "5a203b7e4ecd118d7b5545a7028f7ca59a48d37e277a7168b1972fd9215f1bc8"
 
 [metadata.files]
 anyio = [
@@ -2062,6 +2078,10 @@ black = [
 bleach = [
     {file = "bleach-5.0.0-py3-none-any.whl", hash = "sha256:08a1fe86d253b5c88c92cc3d810fd8048a16d15762e1e5b74d502256e5926aa1"},
     {file = "bleach-5.0.0.tar.gz", hash = "sha256:c6d6cc054bdc9c83b48b8083e236e5f00f238428666d2ce2e083eaa5fd568565"},
+]
+boltons = [
+    {file = "boltons-21.0.0-py2.py3-none-any.whl", hash = "sha256:b9bb7b58b2b420bbe11a6025fdef6d3e5edc9f76a42fb467afe7ca212ef9948b"},
+    {file = "boltons-21.0.0.tar.gz", hash = "sha256:65e70a79a731a7fe6e98592ecfb5ccf2115873d01dbc576079874629e5c90f13"},
 ]
 bump2version = [
     {file = "bump2version-1.0.1-py2.py3-none-any.whl", hash = "sha256:37f927ea17cde7ae2d7baf832f8e80ce3777624554a653006c9144f8017fe410"},
@@ -2662,6 +2682,26 @@ pycodestyle = [
 pycparser = [
     {file = "pycparser-2.21-py2.py3-none-any.whl", hash = "sha256:8ee45429555515e1f6b185e78100aea234072576aa43ab53aefcae078162fca9"},
     {file = "pycparser-2.21.tar.gz", hash = "sha256:e644fdec12f7872f86c58ff790da456218b10f863970249516d60a5eaca77206"},
+]
+pyexiv2 = [
+    {file = "pyexiv2-2.7.1-cp310-none-macosx_10_14_x86_64.macosx_11_0_x86_64.whl", hash = "sha256:8a5a937ece3fcb97130b24ece2552693d3c8a82b28ac924a7895ea0f81d97bd8"},
+    {file = "pyexiv2-2.7.1-cp310-none-manylinux2014_x86_64.whl", hash = "sha256:16b8b55ef18dc0c16c02bab18e7724cc9e4e60caf0574fc8d15539e4ad5e4ce3"},
+    {file = "pyexiv2-2.7.1-cp310-none-win_amd64.whl", hash = "sha256:23de02fe139d88a34e4e6e3539a8547433b2fe0ffb560b6b26e2badbc997b9cb"},
+    {file = "pyexiv2-2.7.1-cp35-none-macosx_10_14_x86_64.macosx_11_0_x86_64.whl", hash = "sha256:afdb043e7761e74c8146092335bfa953b090ec4b169de5be21225d9479461f87"},
+    {file = "pyexiv2-2.7.1-cp35-none-manylinux2014_x86_64.whl", hash = "sha256:5b3c06031a751db0230e1544eae9026c1000ef7764b2cc168e9ff58ab8b3ad86"},
+    {file = "pyexiv2-2.7.1-cp35-none-win_amd64.whl", hash = "sha256:1e140058e802ab17eb0afc204bb8c2c319c6928d5b8a0cdc9f4579efe08248cf"},
+    {file = "pyexiv2-2.7.1-cp36-none-macosx_10_14_x86_64.macosx_11_0_x86_64.whl", hash = "sha256:799872148fa655eaba91efbf915094b870c0cfd0cbe91843f0a96681cb5869d2"},
+    {file = "pyexiv2-2.7.1-cp36-none-manylinux2014_x86_64.whl", hash = "sha256:fe87d5fb8f2132e6e336fc7ecc189c8194673c0b7b98864be1fc7255bff52dae"},
+    {file = "pyexiv2-2.7.1-cp36-none-win_amd64.whl", hash = "sha256:59254ef0594796cdcbbe640f490a9389ddbdb872047599ae9217cb4411268c3c"},
+    {file = "pyexiv2-2.7.1-cp37-none-macosx_10_14_x86_64.macosx_11_0_x86_64.whl", hash = "sha256:9d34105fb8a2a00a86aa026a686a6b9a3dc4125c99008272a9c7c9b92aea403a"},
+    {file = "pyexiv2-2.7.1-cp37-none-manylinux2014_x86_64.whl", hash = "sha256:ba7a2a859b452a08d0d1a1b874109c63d52ee28adcc4999b61c4b18b3bab833e"},
+    {file = "pyexiv2-2.7.1-cp37-none-win_amd64.whl", hash = "sha256:984027c8e1cd6b919bbe3e26a4ccb1486f328e62fd4c8fde4779add3db26eaf8"},
+    {file = "pyexiv2-2.7.1-cp38-none-macosx_10_14_x86_64.macosx_11_0_x86_64.whl", hash = "sha256:f1ee985551cc9b90533bfa67522dbfe34ae73a6056bf13accc6634629379faf8"},
+    {file = "pyexiv2-2.7.1-cp38-none-manylinux2014_x86_64.whl", hash = "sha256:622970696807619ebf1b2ba4a8a4545750dbe0c1b3ef6d856cefbb110e85d102"},
+    {file = "pyexiv2-2.7.1-cp38-none-win_amd64.whl", hash = "sha256:2a8285f673e1274d53f6dafc7361978fa9e622843f0c16acd8f69c1dd3665366"},
+    {file = "pyexiv2-2.7.1-cp39-none-macosx_10_14_x86_64.macosx_11_0_x86_64.whl", hash = "sha256:ea9d6d161655c40dedf2f3a7b11d45831771fc319398c6ced1423ea90798d3a6"},
+    {file = "pyexiv2-2.7.1-cp39-none-manylinux2014_x86_64.whl", hash = "sha256:2c6ff01798d72d9093825425d8ccdff98911d06336c4f72aeb46a4aab64db23e"},
+    {file = "pyexiv2-2.7.1-cp39-none-win_amd64.whl", hash = "sha256:9c6d2cc14c5e32fd79c58e976b2ac1ef8dcab47e54cb2cf02624f1bbda309c2b"},
 ]
 pyflakes = [
     {file = "pyflakes-2.4.0-py2.py3-none-any.whl", hash = "sha256:3bb3a3f256f4b7968c9c788781e4ff07dce46bdf12339dcda61053375426ee2e"},
