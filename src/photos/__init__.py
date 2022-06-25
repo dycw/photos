@@ -1,1 +1,4 @@
-__version__ = "0.0.2"
+from photos.constants import PATH_DROPBOX
+
+
+__all__ = ["PATH_DROPBOX"]
