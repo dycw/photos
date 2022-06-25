@@ -19,8 +19,7 @@ from photos.constants import PATH_MONTHLY
 from photos.constants import THUMBNAIL_SIZE
 
 
-def get_datetime_data(path: PathLike, /) -> DateTimeData | None:
-    image = open_image(path)
+def get_datetime_data(image: Image, path: PathLike, /) -> DateTimeData | None:
     with suppress(KeyError):
         value = get_parsed_exif_tags(image)["DateTime"]
         return DateTimeData(value=value, source="EXIF")
@@ -85,8 +84,10 @@ def is_jpg(path: PathLike, /) -> bool:
 
 def open_image(path: PathLike, /) -> Image:
     with open(path, mode="rb") as file:
-        return _open(file)
+        image = _open(file)
+        image.load()
+    return image
 
 
 def make_thumbnail(image: Image, /) -> Image:
-    return contain(image.rotate(180), THUMBNAIL_SIZE)
+    return contain(image, THUMBNAIL_SIZE)
