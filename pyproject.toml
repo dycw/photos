@@ -42,6 +42,8 @@ pyqt5 = "^5.15.7"
 qtconsole = "^5.3.0"
 tabulate = "^0.8.10"
 humanize = "^4.2.1"
+ExifRead = "^3.0.0"
+ipython = "^8.4.0"
 
 [tool.poetry.dev-dependencies]
 black = "^22.3.0"

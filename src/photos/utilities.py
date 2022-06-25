@@ -1,20 +1,42 @@
+from __future__ import annotations
+
 import datetime as dt
 from contextlib import suppress
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
-from typing import Optional
+from typing import Literal
 
 from PIL.ExifTags import TAGS
 from PIL.Image import Image
 from PIL.Image import open as _open
+from PIL.ImageOps import contain
 from dycw_utilities.pathlib import PathLike
 from dycw_utilities.pathlib import ensure_suffix
+from dycw_utilities.re import extract_group
 
 from photos.constants import PATH_MONTHLY
+from photos.constants import THUMBNAIL_SIZE
 
 
-def get_datetime(image: Image, /) -> Optional[dt.datetime]:
-    return get_parsed_exif_tags(image).get("DateTime")
+def get_datetime_data(path: PathLike, /) -> DateTimeData | None:
+    image = open_image(path)
+    with suppress(KeyError):
+        value = get_parsed_exif_tags(image)["DateTime"]
+        return DateTimeData(value=value, source="EXIF")
+    with suppress(ValueError):
+        as_str = extract_group(
+            r"(\d{4}-\d{2}-\d{2} \d{2}\.\d{2}\.\d{2})", Path(path).name
+        )
+        value = dt.datetime.strptime(as_str, "%Y-%m-%d %H.%M.%S")
+        return DateTimeData(value=value, source="filename")
+    return None
+
+
+@dataclass
+class DateTimeData:
+    value: dt.datetime
+    source: Literal["EXIF", "filename"]
 
 
 def get_parsed_exif_tags(image: Image, /) -> dict[str, Any]:
@@ -29,16 +51,20 @@ def get_parsed_exif_tags(image: Image, /) -> dict[str, Any]:
 
 
 def get_destination(
-    datetime: dt.datetime,
+    data: DateTimeData | None,
     /,
     *,
     root: PathLike = PATH_MONTHLY,
     suffix: str = ".jpg",
-) -> Path:
-    path = Path(root).joinpath(
-        datetime.strftime("%Y-%m"), datetime.strftime("%Y-%m-%d %H:%M:%S")
-    )
-    return ensure_suffix(path, suffix)
+) -> Path | None:
+    if data is None:
+        return None
+    else:
+        value = data.value
+        path = Path(root).joinpath(
+            value.strftime("%Y-%m"), value.strftime("%Y-%m-%d %H:%M:%S")
+        )
+        return ensure_suffix(path, suffix)
 
 
 def get_file_size(path: PathLike, /) -> int:
@@ -60,3 +86,7 @@ def is_jpg(path: PathLike, /) -> bool:
 def open_image(path: PathLike, /) -> Image:
     with open(path, mode="rb") as file:
         return _open(file)
+
+
+def make_thumbnail(image: Image, /) -> Image:
+    return contain(image.rotate(180), THUMBNAIL_SIZE)

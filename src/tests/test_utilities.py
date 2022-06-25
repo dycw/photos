@@ -6,7 +6,7 @@ from PIL.Image import Image
 from hypothesis import given
 from tabulate import tabulate
 
-from photos.utilities import get_datetime
+from photos.utilities import get_datetime_data
 from photos.utilities import get_file_size
 from photos.utilities import get_parsed_exif_tags
 from photos.utilities import get_raw_exif_tags
@@ -16,9 +16,9 @@ from tests.test_strategies import jpg_images
 from tests.test_strategies import jpg_paths
 
 
-@given(image=jpg_images())
-def test_get_datetime(image: Image) -> None:
-    _ = get_datetime(image)
+@given(path=jpg_paths())
+def test_get_datetime_data(path: Path) -> None:
+    _ = get_datetime_data(path)
 
 
 @given(path=jpg_paths())
