@@ -1,4 +1,7 @@
-from photos.constants import PATH_DROPBOX
+from sys import stdout
+
+from loguru import logger
 
 
-__all__ = ["PATH_DROPBOX"]
+logger.remove()
+_ = logger.add(stdout, format="{time:HH:mm:ss}: {message}")
