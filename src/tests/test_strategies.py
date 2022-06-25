@@ -1,28 +1,86 @@
+import datetime as dt
+from collections.abc import Iterator
+from functools import cache
 from pathlib import Path
+from typing import cast
 
 from PIL.Image import Image
+from dycw_utilities.hypothesis import assume_does_not_raise
+from dycw_utilities.tempfile import gettempdir
 from hypothesis import given
 from hypothesis.strategies import SearchStrategy
 from hypothesis.strategies import sampled_from
+from luigi import DateMinuteParameter
+from luigi import Event
+from luigi import LocalTarget
+from luigi import Task
+from luigi import build
+from pandas import read_pickle
+from pandas import to_pickle
+from writer_cm import writer_cm
 
 from photos.constants import PATH_CAMERA_UPLOADS
+from photos.constants import PATH_GOOGLE_DOWNLOAD
+from photos.constants import PATH_PHOTOS
 from photos.utilities import is_jpg
 from photos.utilities import open_image
 
 
+class GetJPGPaths(Task):
+    as_of = cast(
+        dt.datetime, DateMinuteParameter(interval=5, default=dt.datetime.now())
+    )
+
+    def output(self) -> LocalTarget:  # type: ignore
+        return LocalTarget(
+            gettempdir().joinpath(
+                type(self).__name__, f"{self.as_of:%Y%m%d%H%M%S}.gz"
+            )
+        )
+
+    def run(self) -> None:
+        def yield_paths() -> Iterator[Path]:
+            for path in {
+                PATH_CAMERA_UPLOADS,
+                PATH_GOOGLE_DOWNLOAD,
+                PATH_PHOTOS,
+            }:
+                for p in path.rglob("*"):
+                    if p.is_file() and is_jpg(p):
+                        yield p
+
+        paths = list(yield_paths())
+        with writer_cm(self.output().path, overwrite=True) as temp:
+            to_pickle(paths, temp)
+
+
+@GetJPGPaths.event_handler(Event.SUCCESS)
+def _(task: GetJPGPaths, /) -> None:
+    files = sorted(Path(task.output().path).parent.iterdir(), reverse=True)
+    for old in files[1:]:
+        old.unlink(missing_ok=True)
+
+
+@cache
+def _get_jpg_paths() -> list[Path]:
+    build([task := GetJPGPaths()], local_scheduler=True)
+    return read_pickle(task.output().path)
+
+
 def jpg_paths() -> SearchStrategy[Path]:
-    return sampled_from(sorted(filter(is_jpg, PATH_CAMERA_UPLOADS.iterdir())))
+    return sampled_from(_get_jpg_paths()).filter(lambda x: x.exists())
 
 
 @given(path=jpg_paths())
 def test_jpg_paths(path: Path) -> None:
-    assert isinstance(path, Path)
-    assert is_jpg(path)
-    assert path.relative_to(PATH_CAMERA_UPLOADS)
+    with assume_does_not_raise(FileNotFoundError):
+        assert isinstance(path, Path)
+        assert is_jpg(path)
 
 
 def jpg_images() -> SearchStrategy[Image]:
-    return jpg_paths().map(open_image)
+    with assume_does_not_raise(FileNotFoundError):
+        return jpg_paths().map(open_image)
 
 
 @given(image=jpg_images())

@@ -6,7 +6,6 @@ from dataclasses import dataclass
 from enum import Enum
 from enum import unique
 from pathlib import Path
-from random import shuffle
 from shutil import move
 from time import sleep
 from typing import Any
@@ -22,10 +21,12 @@ from photos.utilities import get_datetime_data
 from photos.utilities import get_destination
 from photos.utilities import get_file_size
 from photos.utilities import get_parsed_exif_tags
+from photos.utilities import get_paths_randomly
 from photos.utilities import get_resolution
 from photos.utilities import is_jpg
 from photos.utilities import make_thumbnail
 from photos.utilities import open_image
+from photos.utilities import purge_empty_directories
 
 
 class Organizer:
@@ -89,19 +90,24 @@ class Organizer:
                 return
             else:
                 if self._loop_choices() is _Choice.quit:
-                    return
+                    break
+        purge_empty_directories(self.dir)
 
-    def _choice_auto(self) -> None:
+    def _choice_auto(self) -> _Choice:
         while True:
             data = self.data
-            dt_data = data.datetime_data
-            if (dt_data is not None and dt_data.source == "EXIF") or (
-                data.tags.get("Make") == "Apple"
-            ):
-                self._choice_move()
+            dt_data = data.dt_data
+            try:
+                if (dt_data is not None and dt_data.source == "EXIF") or (
+                    data.tags.get("Make") == "Apple"
+                ):
+                    self._choice_move()
+                else:
+                    self._choice_skip()
+            except _NoNextFileError:
+                return _Choice.quit
             else:
-                self._choice_skip()
-            sleep(1.0)
+                sleep(0.01)
 
     def _choice_delete(self) -> None:
         path = self.data.path
@@ -116,7 +122,7 @@ class Organizer:
             data = self.data
             yield "path", data.path
             yield "file size", data.file_size
-            if (dt_data := data.datetime_data) is None:
+            if (dt_data := data.dt_data) is None:
                 yield "datetime", None
                 yield "source", None
             else:
@@ -178,16 +184,18 @@ class Organizer:
                 return _Choice[choices[input("> ").strip()]]
 
     def _get_next_data(self) -> None:
-        paths = [
-            p for p in self.dir.iterdir() if is_jpg(p) and p not in self.skips
-        ]
-        if len(paths) >= 1:
-            shuffle(paths)
-            self.data = _Data(next(iter(paths)))
-            self._choice_overview()
-        else:
+        try:
+            path = next(
+                p
+                for p in get_paths_randomly(self.dir)
+                if p.is_file() and is_jpg(p) and p not in self.skips
+            )
+        except StopIteration:
             logger.info("No more files found in {}", self.dir)
-            raise _NoNextFileError
+            raise _NoNextFileError from None
+        else:
+            self.data = _Data(path)
+            self._choice_overview()
 
     def _loop_choices(self) -> _Choice:
         while True:
@@ -208,7 +216,7 @@ class Organizer:
             elif choice is _Choice.skip:
                 self._choice_skip()
             elif choice is _Choice.auto:
-                self._choice_auto()
+                return self._choice_auto()
             elif choice is _Choice.quit:
                 return choice
             else:
@@ -226,10 +234,10 @@ class _Data:
     def __post_init__(self) -> None:
         self.image = image = open_image(path := self.path)
         self.file_size = naturalsize(get_file_size(path))
-        self.datetime_data = datetime_data = get_datetime_data(image, path)
+        self.dt_data = dt_data = get_datetime_data(path, image=image)
         self.resolution = get_resolution(image)
         self.tags = get_parsed_exif_tags(image)
-        self.destination = get_destination(datetime_data)
+        self.destination = get_destination(dt_data)
 
 
 @unique

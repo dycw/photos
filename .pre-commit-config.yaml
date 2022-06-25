@@ -54,10 +54,10 @@ repos:
     hooks:
       - id: isort
   # linters
-  - repo: https://github.com/compwa/mirrors-pyright
-    rev: "v1.1.250"
-    hooks:
-      - id: pyright
+  # - repo: https://github.com/compwa/mirrors-pyright
+  #   rev: "v1.1.250"
+  #   hooks:
+  #     - id: pyright
   - repo: https://github.com/markdownlint/markdownlint
     rev: v0.11.0
     hooks:
