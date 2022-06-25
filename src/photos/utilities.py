@@ -9,6 +9,7 @@ from shutil import rmtree
 from typing import Any
 from typing import Literal
 
+import pyexiv2
 from PIL.ExifTags import TAGS
 from PIL.Image import Image
 from PIL.Image import open as _open
@@ -19,33 +20,8 @@ from dycw_utilities.re import extract_group
 from loguru import logger
 
 from photos.constants import PATH_MONTHLY
+from photos.constants import PATH_STASH
 from photos.constants import THUMBNAIL_SIZE
-
-
-def get_datetime_data(
-    path: PathLike, /, *, image: Image | None = None
-) -> DateTimeData | None:
-    if image is None:
-        image = open_image(path)
-    with suppress(KeyError):
-        value = get_parsed_exif_tags(image)["DateTime"]
-        return DateTimeData(value=value, source="EXIF")
-    name = Path(path).name
-    for pattern, fmt in [
-        (r"(\d{4}-\d{2}-\d{2} \d{2}\.\d{2}\.\d{2})", "%Y-%m-%d %H.%M.%S"),
-        (r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})", "%Y-%m-%d %H:%M:%S"),
-    ]:
-        with suppress(ValueError):
-            as_str = extract_group(pattern, name)
-            value = dt.datetime.strptime(as_str, fmt)
-            return DateTimeData(value=value, source="filename")
-    return None
-
-
-@dataclass
-class DateTimeData:
-    value: dt.datetime
-    source: Literal["EXIF", "filename"]
 
 
 def get_parsed_exif_tags(image: Image, /) -> dict[str, Any]:
@@ -59,25 +35,57 @@ def get_parsed_exif_tags(image: Image, /) -> dict[str, Any]:
     return tags
 
 
-def get_destination(
-    data: DateTimeData | None,
-    /,
-    *,
-    root: PathLike = PATH_MONTHLY,
-    suffix: str = ".jpg",
-) -> Path | None:
-    if data is None:
-        return None
-    else:
-        value = data.value
-        path = Path(root).joinpath(
-            value.strftime("%Y-%m"), value.strftime("%Y-%m-%d %H:%M:%S")
-        )
-        return ensure_suffix(path, suffix)
-
-
 def get_file_size(path: PathLike, /) -> int:
     return Path(path).stat().st_size
+
+
+def get_path_monthly(
+    path: PathLike,
+    /,
+    *,
+    image: Image | None = None,
+    raise_if_missing: bool = True,
+) -> PathMonthly | None:
+    path = Path(path)
+    if image is None:
+        try:
+            image = open_image(path)
+        except FileNotFoundError:
+            if raise_if_missing:
+                raise
+        else:
+            with suppress(KeyError):
+                date = get_parsed_exif_tags(image)["DateTime"]
+                return PathMonthly(path, date, "EXIF")
+    for pattern, fmt in [
+        (r"(\d{4}-\d{2}-\d{2} \d{2}\.\d{2}\.\d{2})", "%Y-%m-%d %H.%M.%S"),
+        (r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})", "%Y-%m-%d %H:%M:%S"),
+    ]:
+        with suppress(ValueError):
+            as_str = extract_group(pattern, path.name)
+            date = dt.datetime.strptime(as_str, fmt)
+            return PathMonthly(path, date, "filename")
+    return None
+
+
+@dataclass
+class PathMonthly:
+    path: Path
+    datetime: dt.datetime
+    source: Literal["EXIF", "filename"]
+
+    def __post_init__(self) -> None:
+        date = self.datetime
+        self.destination = ensure_suffix(
+            PATH_MONTHLY.joinpath(
+                date.strftime("%Y-%m"), date.strftime("%Y-%m-%d %H:%M:%S")
+            ),
+            self.path.suffix,
+        )
+
+
+def get_path_stash(path: Path, /) -> Path:
+    return PATH_STASH.joinpath(path.name)
 
 
 def get_paths_randomly(path: PathLike, /) -> list[Path]:
@@ -98,6 +106,10 @@ def is_jpg(path: PathLike, /) -> bool:
     return Path(path).suffix == ".jpg"
 
 
+def is_png(path: PathLike, /) -> bool:
+    return Path(path).suffix == ".png"
+
+
 def open_image(path: PathLike, /) -> Image:
     with open(path, mode="rb") as file:
         image = _open(file)
@@ -112,7 +124,7 @@ def make_thumbnail(image: Image, /) -> Image:
 def purge_empty_directories(path: PathLike, /) -> None:
     while True:
         try:
-            path = next(
+            p = next(
                 p
                 for p in get_paths_randomly(path)
                 if p.is_dir() and len(list(p.iterdir())) == 0
@@ -120,5 +132,12 @@ def purge_empty_directories(path: PathLike, /) -> None:
         except StopIteration:
             break
         else:
-            logger.info("Purging:\n{}", path)
-            rmtree(path)
+            logger.info("Purging:\n{}", p)
+            rmtree(p)
+
+
+def write_datetime(path: PathLike, datetime: dt.datetime, /) -> None:
+    image = pyexiv2.Image(Path(path).as_posix())
+    image.modify_exif(
+        {"Exif.Image.DateTime": datetime.strftime("%4Y:%m:%d %H:%M:%S")}
+    )
