@@ -64,6 +64,7 @@ def test_get_parsed_exif_tags(image: Image) -> None:
         "YCbCrSubSampling": tuple,
         "YResolution": float,
         "ExposureMode": int,
+        "ImageLength": int,
     }
     for key, value in tags.items():
         data = [("key", key), ("value", value), ("type", type(value))]
@@ -143,3 +144,4 @@ def test_write_datetime(
     write_datetime(dest, datetime)
     tags2 = get_parsed_exif_tags(open_image(dest))
     assert tags2["DateTime"] == datetime
+    assert src.stat().st_size < dest.stat().st_size
