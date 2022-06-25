@@ -1,14 +1,13 @@
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
-
+#### black ####################################################################
 [tool.black]
 line-length = 80
 skip-magic-trailing-comma = true
 target-version = ["py310"]
 
+#### isort ####################################################################
 [tool.isort]
 atomic = true
+case_sensitive = true
 float_to_top = true
 force_single_line = true
 line_length = 80
@@ -16,13 +15,16 @@ lines_after_imports = 2
 profile = "black"
 remove_redundant_aliases = true
 skip_gitignore = true
-src_paths = ["src"]
-virtual_env = ".venv/bin/python"
+
+#### poetry ###################################################################
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-name = "google-photos"
+name = "photos"
 version = "0.0.2"
-description = "Organize the Google Photos export"
+description = "Photo organizer"
 authors = ["Derek Wan <d.wan@icloud.com>"]
 license = "MIT"
 
@@ -34,52 +36,65 @@ more-itertools = "^8.12.0"
 qtconsole = "^5.3.0"
 
 [tool.poetry.dev-dependencies]
-black = "^22.3"
-flake8 = "^4.0"
-hypothesis = "^6.17.0"
-isort = "^5.10"
-jupyterlab = "^3.1.9"
-jupyterlab-vim = "^0.14.2"
-pre-commit = "^2.16"
-pyclean = "^2.0"
-pytest = "^7.1"
-# flake8 extensions
-flake8-absolute-import = "^1.0"
-flake8-annotations = "^2.8"
-flake8-bandit = "^3.0"
-flake8-bugbear = "^22.3"
-flake8-builtins = "^1.5"
-flake8-comprehensions = "^3.8"
-flake8-debugger = "^4.0"
-flake8-eradicate = "^1.2"
-flake8-executable = "^2.1"
-flake8-no-pep420 = "^2.1"
-flake8-pie = "^0.15"
-flake8-print = "^4.0"
-flake8-pytest-style = "^1.6"
-flake8-simplify = "^0.19"
-flake8-unused-arguments = "^0.0"
-flake8-variables-names = "^0.0"
-pep8-naming = "^0.12"
-# pytest extensions
-pytest-instafail = "^0.4"
-pytest-randomly = "^3.8"
-pytest-xdist = "^2.3"
+black = "^22.3.0"
+bump2version = "^1.0.1"
+flake8 = "^4.0.1"
+flake8-absolute-import = "^1.0.0.1"
+flake8-annotations = "^2.9.0"
+flake8-bandit = "^3.0.0"
+flake8-bugbear = "^22.4.25"
+flake8-comprehensions = "^3.10.0"
+flake8-debugger = "^4.1.2"
+flake8-eradicate = "^1.2.1"
+flake8-no-pep420 = "^2.3.0"
+flake8-pie = "^0.15.0"
+flake8-print = "^5.0.0"
+flake8-simplify = "^0.19.2"
+flake8-unused-arguments = "^0.0.10"
+hypothesis = "^6.47.4"
+isort = "^5.10.1"
+poetry-deps-scanner = "^2.0.0"
+pre-commit = "^2.18.1"
+pyclean = "^2.2.0"
+pytest = "^7.1.2"
+pytest-instafail = "^0.4.2"
+pytest-xdist = "^2.5.0"
+typeguard = "^2.13.3"
 
-[tool.poetry.scripts]
-
-[tool.pytest.ini_options]
-addopts = ["-rsxX", "--color=auto", "--strict-markers"]
-filterwarnings = ["error", "ignore::DeprecationWarning"]
-minversion = "7.0"
-testpaths = "src/tests"
-xfail_strict = true
-looponfailroots = "src"
-
+#### pyright ##################################################################
 [tool.pyright]
 include = ["src"]
-venvPath = ".venv"
 pythonVersion = "3.10"
-pythonPlatform = "Linux"
 executionEnvironments = [{ root = "src" }]
 typeCheckingMode = "strict"
+reportMissingTypeStubs = false
+reportMissingTypeArgument = false
+reportPrivateUsage = false
+reportUnknownArgumentType = false
+reportUnknownMemberType = false
+reportUnknownParameterType = false
+reportUnknownVariableType = false
+reportUntypedBaseClass = false
+reportImplicitStringConcatenation = "error"
+reportMissingSuperCall = "error"
+reportPropertyTypeMismatch = "error"
+reportUnnecessaryTypeIgnoreComment = "error"
+reportUnusedCallResult = "error"
+
+#### pytest ###################################################################
+[tool.pytest.ini_options]
+addopts = [
+  "-rsxX",
+  "--color=auto",
+  "--strict-markers",
+  "--typeguard-packages=photos",
+]
+filterwarnings = [
+  "error",
+  "ignore::DeprecationWarning",
+  "ignore:Implicitly cleaning up <TemporaryDirectory '.*'>:ResourceWarning",
+]
+looponfailroots = ["src"]
+minversion = "7.0"
+testpaths = ["src/tests"]
+xfail_strict = true

@@ -5,18 +5,18 @@ from hypothesis import given
 from hypothesis import reproduce_failure
 from hypothesis.strategies import sampled_from
 
-from google_photos.main import ALL_FILES
-from google_photos.main import ALL_JSON_VIEWS
-from google_photos.main import ALL_PATHS
-from google_photos.main import ALL_PHOTO_JSON_VIEWS
-from google_photos.main import ALL_VIEWS
-from google_photos.main import ROOT
-from google_photos.main import UTC
-from google_photos.main import JsonView
-from google_photos.main import JsonViewType
-from google_photos.main import PhotoJsonView
-from google_photos.main import View
-from google_photos.main import ViewType
+from photos.main import ALL_FILES
+from photos.main import ALL_JSON_VIEWS
+from photos.main import ALL_PATHS
+from photos.main import ALL_PHOTO_JSON_VIEWS
+from photos.main import ALL_VIEWS
+from photos.main import ROOT
+from photos.main import UTC
+from photos.main import JsonView
+from photos.main import JsonViewType
+from photos.main import PhotoJsonView
+from photos.main import View
+from photos.main import ViewType
 
 
 _ = reproduce_failure
