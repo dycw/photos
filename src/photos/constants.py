@@ -7,6 +7,7 @@ PATH_GOOGLE_DOWNLOAD = PATH_DROPBOX.joinpath(
     "Apps", "Google Download Your Data"
 )
 PATH_PHOTOS = PATH_DROPBOX.joinpath("Photos")
+PATH_MONTHLY = PATH_PHOTOS.joinpath("Monthly")
 
 
 THUMBNAIL_SIZE = (600, 600)
