@@ -5,8 +5,6 @@ from pathlib import Path
 from typing import cast
 
 from PIL.Image import Image
-from dycw_utilities.hypothesis import assume_does_not_raise
-from dycw_utilities.tempfile import gettempdir
 from hypothesis import given
 from hypothesis.strategies import SearchStrategy
 from hypothesis.strategies import sampled_from
@@ -17,13 +15,15 @@ from luigi import Task
 from luigi import build
 from pandas import read_pickle
 from pandas import to_pickle
-from writer_cm import writer_cm
+from utilities.atomicwrites import writer
+from utilities.hypothesis import assume_does_not_raise
+from utilities.tempfile import gettempdir
 
 from photos.constants import PATH_CAMERA_UPLOADS
 from photos.constants import PATH_GOOGLE_DOWNLOAD
 from photos.constants import PATH_PHOTOS
 from photos.utilities import is_supported
-from photos.utilities import open_image
+from photos.utilities import open_image_pillow
 
 
 class GetPaths(Task):
@@ -50,7 +50,7 @@ class GetPaths(Task):
                         yield p
 
         paths = list(yield_paths())
-        with writer_cm(self.output().path, overwrite=True) as temp:
+        with writer(self.output().path, overwrite=True) as temp:
             to_pickle(paths, temp)
 
 
@@ -63,7 +63,7 @@ def _(task: GetPaths, /) -> None:
 
 @cache
 def _get_paths() -> list[Path]:
-    build([task := GetPaths()], local_scheduler=True)
+    _ = build([task := GetPaths()], local_scheduler=True)
     return read_pickle(task.output().path)
 
 
@@ -81,7 +81,7 @@ def test_paths(path: Path) -> None:
 
 def images() -> SearchStrategy[Image]:
     with assume_does_not_raise(FileNotFoundError):
-        return paths().map(open_image)
+        return paths().map(open_image_pillow)
 
 
 @given(image=images())

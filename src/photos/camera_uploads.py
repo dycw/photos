@@ -10,10 +10,10 @@ from typing import Any
 
 from IPython.display import display
 from boltons.fileutils import atomic_rename
-from dycw_utilities.pathlib import PathLike
 from humanize import naturalsize
 from loguru import logger
 from tabulate import tabulate
+from utilities.pathlib import PathLike
 
 from photos.constants import PATH_CAMERA_UPLOADS
 from photos.utilities import get_file_size
@@ -24,7 +24,7 @@ from photos.utilities import get_paths_randomly
 from photos.utilities import get_resolution
 from photos.utilities import is_supported
 from photos.utilities import make_thumbnail
-from photos.utilities import open_image
+from photos.utilities import open_image_pillow
 from photos.utilities import purge_empty_directories
 
 
@@ -251,7 +251,7 @@ class _Data:
     path: Path
 
     def __post_init__(self) -> None:
-        self.image = image = open_image(path := self.path)
+        self.image = image = open_image_pillow(path := self.path)
         self.file_size = naturalsize(get_file_size(path))
         self.resolution = get_resolution(image)
         self.tags = get_parsed_exif_tags(image)

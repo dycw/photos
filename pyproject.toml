@@ -4,6 +4,35 @@ line-length = 80
 skip-magic-trailing-comma = true
 target-version = ["py310"]
 
+#### coverage #################################################################
+[tool.coverage.run]
+branch = true
+data_file = ".coverage/data"
+parallel = true
+
+[tool.coverage.report]
+exclude_lines = ["# pragma: no cover", "@overload"]
+fail_under = 100.0
+skip_covered = true
+skip_empty = true
+
+[tool.coverage.html]
+directory = ".coverage/html"
+
+#### hatch ####################################################################
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build]
+sources = ["src"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/photos"]
+
+[tool.hatch.version]
+path = "src/photos/__init__.py"
+
 #### isort ####################################################################
 [tool.isort]
 atomic = true
@@ -16,64 +45,65 @@ profile = "black"
 remove_redundant_aliases = true
 skip_gitignore = true
 
-#### poetry ###################################################################
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+#### nitpick ##################################################################
+[tool.nitpick]
+style = [
+  "https://raw.githubusercontent.com/dycw/nitpick/master/styles/common.toml",
+  "https://raw.githubusercontent.com/dycw/nitpick/master/styles/3.10.toml",
+  "https://raw.githubusercontent.com/dycw/nitpick/master/styles/pip-compile-no-hashes.toml",
+]
 
-[tool.poetry]
+#### project ##################################################################
+[project]
 name = "photos"
-version = "0.0.2"
-description = "Photo organizer"
-authors = ["Derek Wan <d.wan@icloud.com>"]
-license = "MIT"
+dynamic = ["version"]
+readme = "README.md"
+requires-python = ">= 3.10"
+authors = [{ name = "Derek Wan", email = "d.wan@icloud.com" }]
+dependencies = [
+  "boltons >= 21.0.0, < 22",
+  "dycw-utilities[atomicwrites,loguru,luigi,pandas] >= 0.3.0, < 1",
+  "exif >= 1.3.4, < 2",
+  "exifread >= 3.0.0, < 4",
+  "gitpython >= 3.1.27, < 4",
+  "humanize >= 4.2.1, < 5",
+  "ipython >= 8.4.0, < 9",
+  "jupyterlab >= 3.4.3, < 4",
+  "jupyterlab-vim >= 0.15.1, < 1",
+  "pillow >= 9.3.0, < 10",
+  "pyexiv2 >= 2.7.1, < 3",
+  "pyqt5 >= 5.15.7, < 6",
+  "qtconsole >= 5.3.0, < 6",
+  "tabulate >= 0.8.10, < 1",
+]
 
-[tool.poetry.dependencies]
-python = "^3.10"
-dycw-utilities = "^0.1.29"
-exif = "^1.3.4"
-exifread = "^3.0.0"
-humanize = "^4.2.1"
-ipython = "^8.4.0"
-jupyterlab = "^3.4.3"
-jupyterlab-vim = "^0.15.1"
-loguru = "^0.6.0"
-luigi = "^3.1.0"
-pandas = "^1.4.3"
-pillow = "^9.1.1"
-pyqt5 = "^5.15.7"
-qtconsole = "^5.3.0"
-tabulate = "^0.8.10"
-writer-cm = "^1.1.1"
-boltons = "^21.0.0"
-pyexiv2 = "^2.7.1"
-GitPython = "^3.1.27"
-
-[tool.poetry.dev-dependencies]
-black = "^22.3.0"
-bump2version = "^1.0.1"
-flake8 = "^4.0.1"
-flake8-absolute-import = "^1.0.0.1"
-flake8-annotations = "^2.9.0"
-flake8-bandit = "^3.0.0"
-flake8-bugbear = "^22.4.25"
-flake8-comprehensions = "^3.10.0"
-flake8-debugger = "^4.1.2"
-flake8-eradicate = "^1.2.1"
-flake8-no-pep420 = "^2.3.0"
-flake8-pie = "^0.15.0"
-flake8-print = "^5.0.0"
-flake8-simplify = "^0.19.2"
-flake8-unused-arguments = "^0.0.10"
-hypothesis = "^6.47.4"
-isort = "^5.10.1"
-poetry-deps-scanner = "^2.0.0"
-pre-commit = "^2.18.1"
-pyclean = "^2.2.0"
-pytest = "^7.1.2"
-pytest-instafail = "^0.4.2"
-pytest-xdist = "^2.5.0"
-typeguard = "^2.13.3"
+[project.optional-dependencies]
+dev = [
+  "black",
+  "bump2version",
+  "exceptiongroup",
+  "flake8",
+  "flake8-absolute-import",
+  "flake8-annotations",
+  "flake8-bandit",
+  "flake8-bugbear",
+  "flake8-comprehensions",
+  "flake8-debugger",
+  "flake8-eradicate",
+  "flake8-executable",
+  "flake8-no-pep420",
+  "flake8-pie",
+  "flake8-print",
+  "flake8-simplify",
+  "flake8-unused-arguments",
+  "hatch",
+  "hypothesis",
+  "isort",
+  "pip-tools",
+  "pytest",
+  "pytest-cov",
+  "pytest-xdist < 3.0.2", # https://github.com/pytest-dev/pytest-cov/issues/557
+]
 
 #### pyright ##################################################################
 [tool.pyright]
@@ -84,6 +114,7 @@ typeCheckingMode = "strict"
 reportMissingTypeStubs = false
 reportMissingTypeArgument = false
 reportPrivateUsage = false
+reportPrivateImportUsage = false
 reportUnknownArgumentType = false
 reportUnknownMemberType = false
 reportUnknownParameterType = false
@@ -100,16 +131,17 @@ reportUnusedCallResult = "error"
 addopts = [
   "-rsxX",
   "--color=auto",
+  "--cov=photos",
+  "--cov-config=pyproject.toml",
+  "--cov-report=html",
   "--strict-markers",
-  "--typeguard-packages=photos",
+  "--tb=native"
 ]
 filterwarnings = [
-  "error",
+  "error", 
   "ignore::DeprecationWarning",
   "ignore:Implicitly cleaning up <TemporaryDirectory '.*'>:ResourceWarning",
-  "ignore:unclosed file:ResourceWarning",
 ]
-looponfailroots = ["src"]
 minversion = "7.0"
 testpaths = ["src/tests"]
 xfail_strict = true
