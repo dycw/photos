@@ -30,6 +30,7 @@ from photos.utilities import get_path_stash
 from photos.utilities import get_raw_exif_tags_pillow
 from photos.utilities import get_raw_exif_tags_pyexiv2
 from photos.utilities import get_resolution
+from photos.utilities import is_hex
 from photos.utilities import is_instance
 from photos.utilities import open_image
 from photos.utilities import write_datetime
@@ -61,6 +62,7 @@ def test_get_parsed_exif_tags_pyexiv2(path: Path) -> None:
     with assume_does_not_raise(FileNotFoundError):
         tags = get_parsed_exif_tags_pyexiv2(path)
     for key, value in tags.items():
+        assert not is_hex(key), f"Hex key: {key}"
         data = [("key", key), ("value", value), ("type", type(value))]
         assert key in EXIF_TAGS_PYEXVI2, f"No expected type:\n{tabulate(data)}"
         exp = EXIF_TAGS_PYEXVI2[key]
@@ -119,6 +121,11 @@ def test_get_raw_exif_tags_pyexiv2(path: Path) -> None:
 def test_get_resolution(image: Image) -> None:
     with assume_does_not_raise(FileNotFoundError):
         _ = get_resolution(image)
+
+
+@mark.parametrize(["text", "expected"], [("0xc6d2", True), ("GPSTag", False)])
+def test_is_hex(text: str, expected: bool) -> None:
+    assert is_hex(text) is expected
 
 
 @mark.parametrize(
