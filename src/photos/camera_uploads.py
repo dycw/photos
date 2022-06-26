@@ -22,11 +22,25 @@ from photos.utilities import get_path_monthly
 from photos.utilities import get_path_stash
 from photos.utilities import get_paths_randomly
 from photos.utilities import get_resolution
-from photos.utilities import is_jpg
-from photos.utilities import is_png
+from photos.utilities import is_supported
 from photos.utilities import make_thumbnail
 from photos.utilities import open_image
 from photos.utilities import purge_empty_directories
+
+
+@unique
+class _Choice(Enum):
+    overview = "o"
+    rotate_clockwise = "r"
+    rotate_anticlockwise = "l"
+    rotate_180 = "rr"
+    tags = "t"
+    move = "m"
+    delete = "d"
+    skip = "s"
+    stash = "st"
+    auto = "auto"
+    quit = "q"
 
 
 class Organizer:
@@ -191,9 +205,7 @@ class Organizer:
             path = next(
                 p
                 for p in get_paths_randomly(self.dir)
-                if p.is_file()
-                and (is_jpg(p) or is_png(p))
-                and p not in self.skips
+                if p.is_file() and is_supported(p) and p not in self.skips
             )
         except StopIteration:
             logger.info("No more files found in {}", self.dir)
@@ -259,21 +271,6 @@ class _Data:
             self.source = pm.source
             self.destination = pm.destination
         self.path_stash = get_path_stash(path)
-
-
-@unique
-class _Choice(Enum):
-    overview = "o"
-    rotate_clockwise = "r"
-    rotate_anticlockwise = "l"
-    rotate_180 = "rr"
-    tags = "t"
-    move = "m"
-    delete = "d"
-    skip = "s"
-    stash = "st"
-    auto = "auto"
-    quit = "q"
 
 
 ORGANIZER = Organizer()
