@@ -3,11 +3,15 @@ from __future__ import annotations
 import datetime as dt
 from contextlib import suppress
 from dataclasses import dataclass
+from fractions import Fraction
 from pathlib import Path
 from random import shuffle
+from re import search
 from shutil import rmtree
 from typing import Any
 from typing import Literal
+from typing import get_args
+from typing import get_origin
 
 import pyexiv2
 from PIL.ExifTags import TAGS
@@ -18,14 +22,28 @@ from dycw_utilities.pathlib import PathLike
 from dycw_utilities.pathlib import ensure_suffix
 from dycw_utilities.re import extract_group
 from loguru import logger
+from typeguard import typechecked
 
+from photos.constants import EXIF_TAGS_PYEXVI2
 from photos.constants import PATH_MONTHLY
 from photos.constants import PATH_STASH
 from photos.constants import THUMBNAIL_SIZE
+from photos.types import FractionOrZero
+from photos.types import Zero
 
 
-def get_parsed_exif_tags(image: Image, /) -> dict[str, Any]:
-    tags = get_raw_exif_tags(image)
+def get_file_size(path: PathLike, /) -> int:
+    return Path(path).stat().st_size
+
+
+def get_parsed_exif_tags(path: PathLike, image: Image, /) -> dict[str, Any]:
+    return get_parsed_exif_tags_pillow(image) | get_parsed_exif_tags_pyexiv2(
+        path
+    )
+
+
+def get_parsed_exif_tags_pillow(image: Image, /) -> dict[str, Any]:
+    tags = get_raw_exif_tags_pillow(image)
     for key in {"DateTime"}:
         with suppress(KeyError):
             tags[key] = dt.datetime.strptime(tags[key], "%Y:%m:%d %H:%M:%S")
@@ -35,8 +53,37 @@ def get_parsed_exif_tags(image: Image, /) -> dict[str, Any]:
     return tags
 
 
-def get_file_size(path: PathLike, /) -> int:
-    return Path(path).stat().st_size
+def get_parsed_exif_tags_pyexiv2(path: PathLike, /) -> dict[str, Any]:
+    tags = get_raw_exif_tags_pyexiv2(path)
+    for key, value in EXIF_TAGS_PYEXVI2.items():
+        try:
+            text = tags[key]
+        except KeyError:
+            pass
+        else:
+            if value is int:
+                tags[key] = int(text)
+            elif value is FractionOrZero:
+                tags[key] = to_fraction_or_zero(text)
+            elif value is dt.date:
+                if search(r"^\d{4}:\d{2}:\d{3}$", text):
+                    tags[key] = dt.datetime.strptime(
+                        text[:-1], "%Y:%m:%d"
+                    ).date()
+                else:
+                    tags[key] = dt.datetime.strptime(text, "%Y:%m:%d").date()
+            elif value is dt.datetime:
+                if text == "9999:99:99 00:00:00":
+                    tags[key] = dt.datetime.max
+                else:
+                    tags[key] = dt.datetime.strptime(text, "%Y:%m:%d %H:%M:%S")
+            elif get_origin(value) is list:
+                (cls,) = get_args(value)
+                if cls is int:
+                    tags[key] = list(map(int, text.split()))
+                elif cls is FractionOrZero:
+                    tags[key] = list(map(to_fraction_or_zero, text.split()))
+    return tags
 
 
 def get_path_monthly(
@@ -94,12 +141,33 @@ def get_paths_randomly(path: PathLike, /) -> list[Path]:
     return paths
 
 
-def get_raw_exif_tags(image: Image, /) -> dict[str, Any]:
+def get_raw_exif_tags_pillow(image: Image, /) -> dict[str, Any]:
     return {TAGS[k]: v for k, v in image.getexif().items() if k in TAGS}
+
+
+def get_raw_exif_tags_pyexiv2(path: PathLike, /) -> dict[str, Any]:
+    image = pyexiv2.Image(Path(path).as_posix())
+    return image.read_exif()
 
 
 def get_resolution(image: Image, /) -> tuple[int, int]:
     return image.size
+
+
+def is_instance(obj: Any, cls: Any, /) -> bool:
+    try:
+        return isinstance(obj, cls)
+    except TypeError:
+        try:
+
+            @typechecked
+            def func(_: cls, /) -> None:
+                ...
+
+            func(obj)
+            return True
+        except TypeError:
+            return False
 
 
 def is_jpg(path: PathLike, /) -> bool:
@@ -108,6 +176,10 @@ def is_jpg(path: PathLike, /) -> bool:
 
 def is_png(path: PathLike, /) -> bool:
     return Path(path).suffix == ".png"
+
+
+def is_supported(path: PathLike, /) -> bool:
+    return is_jpg(path) or is_png(path)
 
 
 def open_image(path: PathLike, /) -> Image:
@@ -134,6 +206,13 @@ def purge_empty_directories(path: PathLike, /) -> None:
         else:
             logger.info("Purging:\n{}", p)
             rmtree(p)
+
+
+def to_fraction_or_zero(frac: str, /) -> FractionOrZero:
+    try:
+        return Fraction(frac)
+    except ZeroDivisionError:
+        return Zero()
 
 
 def write_datetime(path: PathLike, datetime: dt.datetime, /) -> None:

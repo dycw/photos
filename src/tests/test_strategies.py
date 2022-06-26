@@ -22,13 +22,13 @@ from writer_cm import writer_cm
 from photos.constants import PATH_CAMERA_UPLOADS
 from photos.constants import PATH_GOOGLE_DOWNLOAD
 from photos.constants import PATH_PHOTOS
-from photos.utilities import is_jpg
+from photos.utilities import is_supported
 from photos.utilities import open_image
 
 
-class GetJPGPaths(Task):
+class GetPaths(Task):
     as_of = cast(
-        dt.datetime, DateMinuteParameter(interval=5, default=dt.datetime.now())
+        dt.datetime, DateMinuteParameter(interval=30, default=dt.datetime.now())
     )
 
     def output(self) -> LocalTarget:  # type: ignore
@@ -46,7 +46,7 @@ class GetJPGPaths(Task):
                 PATH_PHOTOS,
             }:
                 for p in path.rglob("*"):
-                    if p.is_file() and is_jpg(p):
+                    if p.is_file() and is_supported(p):
                         yield p
 
         paths = list(yield_paths())
@@ -54,35 +54,36 @@ class GetJPGPaths(Task):
             to_pickle(paths, temp)
 
 
-@GetJPGPaths.event_handler(Event.SUCCESS)
-def _(task: GetJPGPaths, /) -> None:
+@GetPaths.event_handler(Event.SUCCESS)
+def _(task: GetPaths, /) -> None:
     files = sorted(Path(task.output().path).parent.iterdir(), reverse=True)
     for old in files[1:]:
         old.unlink(missing_ok=True)
 
 
 @cache
-def _get_jpg_paths() -> list[Path]:
-    build([task := GetJPGPaths()], local_scheduler=True)
+def _get_paths() -> list[Path]:
+    build([task := GetPaths()], local_scheduler=True)
     return read_pickle(task.output().path)
 
 
-def jpg_paths() -> SearchStrategy[Path]:
-    return sampled_from(_get_jpg_paths()).filter(lambda x: x.exists())
+def paths() -> SearchStrategy[Path]:
+    return sampled_from(_get_paths()).filter(lambda x: x.exists())
 
 
-@given(path=jpg_paths())
-def test_jpg_paths(path: Path) -> None:
+@given(path=paths())
+def test_paths(path: Path) -> None:
     with assume_does_not_raise(FileNotFoundError):
         assert isinstance(path, Path)
-        assert is_jpg(path)
+        assert path.is_file()
+        assert is_supported(path)
 
 
-def jpg_images() -> SearchStrategy[Image]:
+def images() -> SearchStrategy[Image]:
     with assume_does_not_raise(FileNotFoundError):
-        return jpg_paths().map(open_image)
+        return paths().map(open_image)
 
 
-@given(image=jpg_images())
-def test_jpg_images(image: Image) -> None:
+@given(image=images())
+def test_images(image: Image) -> None:
     assert isinstance(image, Image)

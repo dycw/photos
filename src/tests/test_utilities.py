@@ -3,6 +3,7 @@ from itertools import chain
 from pathlib import Path
 from re import search
 from shutil import copy
+from typing import Any
 
 from PIL.Image import Image
 from dycw_utilities.hypothesis import assume_does_not_raise
@@ -12,72 +13,65 @@ from dycw_utilities.tempfile import gettempdir
 from git.repo import Repo
 from hypothesis import given
 from hypothesis.strategies import datetimes
+from pytest import mark
 from tabulate import tabulate
 
+from photos.constants import EXIF_TAGS_PILLOW
+from photos.constants import EXIF_TAGS_PYEXVI2
 from photos.constants import PATH_MONTHLY
 from photos.constants import PATH_STASH
 from photos.utilities import PathMonthly
 from photos.utilities import get_file_size
 from photos.utilities import get_parsed_exif_tags
+from photos.utilities import get_parsed_exif_tags_pillow
+from photos.utilities import get_parsed_exif_tags_pyexiv2
 from photos.utilities import get_path_monthly
 from photos.utilities import get_path_stash
-from photos.utilities import get_raw_exif_tags
+from photos.utilities import get_raw_exif_tags_pillow
+from photos.utilities import get_raw_exif_tags_pyexiv2
 from photos.utilities import get_resolution
+from photos.utilities import is_instance
 from photos.utilities import open_image
 from photos.utilities import write_datetime
-from tests.test_strategies import jpg_images
-from tests.test_strategies import jpg_paths
+from tests.test_strategies import images
+from tests.test_strategies import paths
 
 
-@given(path=jpg_paths())
+@given(path=paths())
 def test_get_file_sizes(path: Path) -> None:
     with assume_does_not_raise(FileNotFoundError):
         _ = get_file_size(path)
 
 
-@given(image=jpg_images())
-def test_get_parsed_exif_tags(image: Image) -> None:
+@given(image=images())
+def test_get_parsed_exif_tags_pillow(image: Image) -> None:
     with assume_does_not_raise(FileNotFoundError):
-        tags = get_parsed_exif_tags(image)
-    expected = {
-        "Artist": str,
-        "Copyright": str,
-        "CustomRendered": int,
-        "DateTime": dt.datetime,
-        "ExifOffset": int,
-        "GPSInfo": int,
-        "HostComputer": str,
-        "ImageDescription": str,
-        "ImageWidth": int,
-        "Make": str,
-        "Model": str,
-        "Orientation": int,
-        "PrintImageMatching": bytes,
-        "RelatedImageLength": int,
-        "RelatedImageWidth": int,
-        "ResolutionUnit": int,
-        "Software": str,
-        "TileLength": int,
-        "TileWidth": int,
-        "XResolution": float,
-        "YCbCrPositioning": int,
-        "YCbCrSubSampling": tuple,
-        "YResolution": float,
-        "ExposureMode": int,
-        "ImageLength": int,
-    }
+        tags = get_parsed_exif_tags_pillow(image)
     for key, value in tags.items():
         data = [("key", key), ("value", value), ("type", type(value))]
-        assert key in expected, f"No expected type:\n{tabulate(data)}"
-        exp = expected[key]
-        assert isinstance(value, exp), "Type error:\n{}".format(
+        assert key in EXIF_TAGS_PILLOW, f"No expected type:\n{tabulate(data)}"
+        exp = EXIF_TAGS_PILLOW[key]
+        assert is_instance(value, exp), "Type error:\n{}".format(
+            tabulate(chain(data, [("expected", exp)]))
+        )
+
+
+@given(path=paths())
+def test_get_parsed_exif_tags_pyexiv2(path: Path) -> None:
+    with assume_does_not_raise(FileNotFoundError):
+        tags = get_parsed_exif_tags_pyexiv2(path)
+    for key, value in tags.items():
+        data = [("key", key), ("value", value), ("type", type(value))]
+        assert key in EXIF_TAGS_PYEXVI2, f"No expected type:\n{tabulate(data)}"
+        exp = EXIF_TAGS_PYEXVI2[key]
+        assert is_instance(value, exp), "Type error:\n{}".format(
             tabulate(chain(data, [("expected", exp)]))
         )
 
 
 class TestGetPathMonthly:
-    @given(path=jpg_paths())
-    def test_main(self, path: Path) -> None:
+    @given(path=paths())
+    def test_generic(self, path: Path) -> None:
         with assume_does_not_raise(FileNotFoundError):
             maybe = get_path_monthly(path)
         if isinstance(pm := maybe, PathMonthly):
@@ -101,7 +95,7 @@ class TestGetPathMonthly:
         )
 
 
-@given(path=jpg_paths())
+@given(path=paths())
 def test_get_path_stash(path: Path) -> None:
     with assume_does_not_raise(FileNotFoundError):
         p = get_path_stash(path)
@@ -109,19 +103,39 @@ def test_get_path_stash(path: Path) -> None:
     assert path.name == p.name
 
 
-@given(image=jpg_images())
-def test_get_raw_exif_tags(image: Image) -> None:
+@given(image=images())
+def test_get_raw_exif_tags_pillow(image: Image) -> None:
     with assume_does_not_raise(FileNotFoundError):
-        _ = get_raw_exif_tags(image)
+        _ = get_raw_exif_tags_pillow(image)
 
 
-@given(image=jpg_images())
+@given(path=paths())
+def test_get_raw_exif_tags_pyexiv2(path: Path) -> None:
+    with assume_does_not_raise(FileNotFoundError):
+        _ = get_raw_exif_tags_pyexiv2(path)
+
+
+@given(image=images())
 def test_get_resolution(image: Image) -> None:
     with assume_does_not_raise(FileNotFoundError):
         _ = get_resolution(image)
 
 
-@given(path=jpg_paths())
+@mark.parametrize(
+    ["obj", "cls", "expected"],
+    [
+        (0, int, True),
+        (0, float, False),
+        ([], list[int], True),
+        ([1, 2, 3], list[int], True),
+        ([1, 2, "3"], list[int], False),
+    ],
+)
+def test_is_instance(obj: Any, cls: Any, expected: bool) -> None:
+    assert is_instance(obj, cls) is expected
+
+
+@given(path=paths())
 def test_open_image(path: Path) -> None:
     with assume_does_not_raise(FileNotFoundError):
         _ = open_image(path)
