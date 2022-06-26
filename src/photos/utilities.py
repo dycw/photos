@@ -54,31 +54,27 @@ def get_parsed_exif_tags_pillow(image: Image, /) -> dict[str, Any]:
 
 
 def get_parsed_exif_tags_pyexiv2(path: PathLike, /) -> dict[str, Any]:
-    tags = get_raw_exif_tags_pyexiv2(path)
-    for key, value in EXIF_TAGS_PYEXVI2.items():
+    tags = {
+        k: v
+        for k, v in get_raw_exif_tags_pyexiv2(path).items()
+        if k != "" and not is_hex(k)
+    }
+    for key, cls in EXIF_TAGS_PYEXVI2.items():
         try:
             text = tags[key]
         except KeyError:
             pass
         else:
-            if value is int:
+            if cls is int:
                 tags[key] = int(text)
-            elif value is FractionOrZero:
+            elif cls is FractionOrZero:
                 tags[key] = to_fraction_or_zero(text)
-            elif value is dt.date:
-                if search(r"^\d{4}:\d{2}:\d{3}$", text):
-                    tags[key] = dt.datetime.strptime(
-                        text[:-1], "%Y:%m:%d"
-                    ).date()
-                else:
-                    tags[key] = dt.datetime.strptime(text, "%Y:%m:%d").date()
-            elif value is dt.datetime:
-                if text == "9999:99:99 00:00:00":
-                    tags[key] = dt.datetime.max
-                else:
-                    tags[key] = dt.datetime.strptime(text, "%Y:%m:%d %H:%M:%S")
-            elif get_origin(value) is list:
-                (cls,) = get_args(value)
+            elif cls is dt.date:
+                tags[key] = to_date(text)
+            elif cls is dt.datetime:
+                tags[key] = to_datetime(text)
+            elif get_origin(cls) is list:
+                (cls,) = get_args(cls)
                 if cls is int:
                     tags[key] = list(map(int, text.split()))
                 elif cls is FractionOrZero:
@@ -170,6 +166,10 @@ def is_instance(obj: Any, cls: Any, /) -> bool:
             return False
 
 
+def is_hex(text: str, /) -> bool:
+    return bool(search(r"0x\w{4}", text))
+
+
 def is_jpg(path: PathLike, /) -> bool:
     return Path(path).suffix == ".jpg"
 
@@ -206,6 +206,24 @@ def purge_empty_directories(path: PathLike, /) -> None:
         else:
             logger.info("Purging:\n{}", p)
             rmtree(p)
+
+
+def to_date(date: str, /) -> dt.date:
+    if date == "0000:00:00":
+        return dt.date.min
+    elif search(r"^\d{2}\d{2}$", date):
+        return dt.datetime.strptime(date, "%y%m").date()
+    elif search(r"^\d{4}:\d{2}:\d{3}$", date):
+        return to_date(date[:-1])
+    else:
+        return dt.datetime.strptime(date, "%Y:%m:%d").date()
+
+
+def to_datetime(date: str, /) -> dt.datetime:
+    if date == "9999:99:99 00:00:00":
+        return dt.datetime.max
+    else:
+        return dt.datetime.strptime(date, "%Y:%m:%d %H:%M:%S")
 
 
 def to_fraction_or_zero(frac: str, /) -> FractionOrZero:
