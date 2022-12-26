@@ -6,15 +6,15 @@ from shutil import copy
 from typing import Any
 
 from PIL.Image import Image
-from dycw_utilities.hypothesis import assume_does_not_raise
-from dycw_utilities.hypothesis.tempfile import temp_dirs
-from dycw_utilities.tempfile import TemporaryDirectory
-from dycw_utilities.tempfile import gettempdir
 from git.repo import Repo
 from hypothesis import given
 from hypothesis.strategies import datetimes
 from pytest import mark
 from tabulate import tabulate
+from utilities.hypothesis import assume_does_not_raise
+from utilities.hypothesis import temp_dirs
+from utilities.tempfile import TemporaryDirectory
+from utilities.tempfile import gettempdir
 
 from photos.constants import EXIF_TAGS_PILLOW
 from photos.constants import EXIF_TAGS_PYEXVI2
@@ -32,7 +32,7 @@ from photos.utilities import get_raw_exif_tags_pyexiv2
 from photos.utilities import get_resolution
 from photos.utilities import is_hex
 from photos.utilities import is_instance
-from photos.utilities import open_image
+from photos.utilities import open_image_pillow
 from photos.utilities import write_datetime
 from tests.test_strategies import images
 from tests.test_strategies import paths
@@ -63,6 +63,7 @@ def test_get_parsed_exif_tags_pyexiv2(path: Path) -> None:
         tags = get_parsed_exif_tags_pyexiv2(path)
     for key, value in tags.items():
         assert not is_hex(key), f"Hex key: {key}"
+        assert not (isinstance(value, str) and value == "")
         data = [("key", key), ("value", value), ("type", type(value))]
         assert key in EXIF_TAGS_PYEXVI2, f"No expected type:\n{tabulate(data)}"
         exp = EXIF_TAGS_PYEXVI2[key]
@@ -145,7 +146,7 @@ def test_is_instance(obj: Any, cls: Any, expected: bool) -> None:
 @given(path=paths())
 def test_open_image(path: Path) -> None:
     with assume_does_not_raise(FileNotFoundError):
-        _ = open_image(path)
+        _ = open_image_pillow(path)
 
 
 @given(
@@ -160,9 +161,9 @@ def test_write_datetime(
     src = Path(root, "src", "tests", "assets", "2020-09-25 20.18.18.png")
     dest = temp_dir.name.joinpath("temp")
     copy(src, dest)
-    tags1 = get_parsed_exif_tags(open_image(dest))
+    tags1 = get_parsed_exif_tags(open_image_pillow(dest))
     assert "DateTime" not in tags1
     write_datetime(dest, datetime)
-    tags2 = get_parsed_exif_tags(open_image(dest))
+    tags2 = get_parsed_exif_tags(open_image_pillow(dest))
     assert tags2["DateTime"] == datetime
     assert src.stat().st_size < dest.stat().st_size

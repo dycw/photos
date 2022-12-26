@@ -13,18 +13,20 @@ from typing import Literal
 from typing import get_args
 from typing import get_origin
 
-import pyexiv2
 from PIL.ExifTags import TAGS
-from PIL.Image import Image
+from PIL.Image import Image as PILImage
 from PIL.Image import open as _open
 from PIL.ImageOps import contain
-from dycw_utilities.pathlib import PathLike
-from dycw_utilities.pathlib import ensure_suffix
-from dycw_utilities.re import extract_group
+from beartype.door import die_if_unbearable
+from beartype.roar import BeartypeAbbyHintViolation
 from loguru import logger
-from typeguard import typechecked
+from pyexiv2 import Image as pyexiv2Image
+from utilities.pathlib import PathLike
+from utilities.pathlib import ensure_suffix
+from utilities.re import extract_group
 
 from photos.constants import EXIF_TAGS_PYEXVI2
+from photos.constants import PATHS_BAD_EXIF
 from photos.constants import PATH_MONTHLY
 from photos.constants import PATH_STASH
 from photos.constants import THUMBNAIL_SIZE
@@ -36,14 +38,14 @@ def get_file_size(path: PathLike, /) -> int:
     return Path(path).stat().st_size
 
 
-def get_parsed_exif_tags(path: PathLike, image: Image, /) -> dict[str, Any]:
-    return get_parsed_exif_tags_pillow(image) | get_parsed_exif_tags_pyexiv2(
+def get_parsed_exif_tags(path: PathLike, /) -> dict[str, Any]:
+    return get_parsed_exif_tags_pillow(path) | get_parsed_exif_tags_pyexiv2(
         path
     )
 
 
-def get_parsed_exif_tags_pillow(image: Image, /) -> dict[str, Any]:
-    tags = get_raw_exif_tags_pillow(image)
+def get_parsed_exif_tags_pillow(path: PathLike, /) -> dict[str, Any]:
+    tags = get_raw_exif_tags_pillow(path)
     for key in {"DateTime"}:
         with suppress(KeyError):
             tags[key] = dt.datetime.strptime(tags[key], "%Y:%m:%d %H:%M:%S")
@@ -57,7 +59,7 @@ def get_parsed_exif_tags_pyexiv2(path: PathLike, /) -> dict[str, Any]:
     tags = {
         k: v
         for k, v in get_raw_exif_tags_pyexiv2(path).items()
-        if k != "" and not is_hex(k)
+        if not is_hex(k) and v != ""
     }
     for key, cls in EXIF_TAGS_PYEXVI2.items():
         try:
@@ -82,24 +84,15 @@ def get_parsed_exif_tags_pyexiv2(path: PathLike, /) -> dict[str, Any]:
     return tags
 
 
-def get_path_monthly(
-    path: PathLike,
-    /,
-    *,
-    image: Image | None = None,
-    raise_if_missing: bool = True,
-) -> PathMonthly | None:
+def get_datetime(path: PathLike, /) -> dt.datetime | None:
+    pass
+
+
+def get_path_monthly(path: PathLike, /) -> PathMonthly | None:
     path = Path(path)
-    if image is None:
-        try:
-            image = open_image(path)
-        except FileNotFoundError:
-            if raise_if_missing:
-                raise
-        else:
-            with suppress(KeyError):
-                date = get_parsed_exif_tags(image)["DateTime"]
-                return PathMonthly(path, date, "EXIF")
+    with suppress(KeyError):
+        date = get_parsed_exif_tags(path)["DateTime"]
+        return PathMonthly(path, date, "EXIF")
     for pattern, fmt in [
         (r"(\d{4}-\d{2}-\d{2} \d{2}\.\d{2}\.\d{2})", "%Y-%m-%d %H.%M.%S"),
         (r"(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})", "%Y-%m-%d %H:%M:%S"),
@@ -137,33 +130,33 @@ def get_paths_randomly(path: PathLike, /) -> list[Path]:
     return paths
 
 
-def get_raw_exif_tags_pillow(image: Image, /) -> dict[str, Any]:
-    return {TAGS[k]: v for k, v in image.getexif().items() if k in TAGS}
+def get_raw_exif_tags_pillow(path: PathLike, /) -> dict[str, Any]:
+    return {
+        TAGS[k]: v
+        for k, v in open_image_pillow(path).getexif().items()
+        if k in TAGS
+    }
 
 
 def get_raw_exif_tags_pyexiv2(path: PathLike, /) -> dict[str, Any]:
-    image = pyexiv2.Image(Path(path).as_posix())
-    return image.read_exif()
+    return open_image_pyexiv2(path).read_exif()
 
 
 def get_resolution(image: Image, /) -> tuple[int, int]:
     return image.size
 
 
+def is_bad_exif(path: PathLike, /) -> bool:
+    return Path(path) in PATHS_BAD_EXIF
+
+
 def is_instance(obj: Any, cls: Any, /) -> bool:
     try:
-        return isinstance(obj, cls)
-    except TypeError:
-        try:
-
-            @typechecked
-            def func(_: cls, /) -> None:
-                ...
-
-            func(obj)
-            return True
-        except TypeError:
-            return False
+        die_if_unbearable(obj, cls)
+    except BeartypeAbbyHintViolation:
+        return False
+    else:
+        return True
 
 
 def is_hex(text: str, /) -> bool:
@@ -179,17 +172,21 @@ def is_png(path: PathLike, /) -> bool:
 
 
 def is_supported(path: PathLike, /) -> bool:
-    return is_jpg(path) or is_png(path)
+    return (is_jpg(path) or is_png(path)) and not is_bad_exif(path)
 
 
-def open_image(path: PathLike, /) -> Image:
+def open_image_pillow(path: PathLike, /) -> PILImage:
     with open(path, mode="rb") as file:
         image = _open(file)
         image.load()
     return image
 
 
-def make_thumbnail(image: Image, /) -> Image:
+def open_image_pyexiv2(path: PathLike, /) -> pyexiv2Image:
+    return pyexiv2Image(Path(path).as_posix())
+
+
+def make_thumbnail(image: PILImage, /) -> PILImage:
     return contain(image, THUMBNAIL_SIZE)
 
 
@@ -220,7 +217,9 @@ def to_date(date: str, /) -> dt.date:
 
 
 def to_datetime(date: str, /) -> dt.datetime:
-    if date == "9999:99:99 00:00:00":
+    if date == "0000:00:00 00:00:00":
+        return dt.datetime.min
+    elif date == "9999:99:99 00:00:00":
         return dt.datetime.max
     else:
         return dt.datetime.strptime(date, "%Y:%m:%d %H:%M:%S")

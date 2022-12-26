@@ -183,7 +183,7 @@ EXIF_TAGS_PYEXVI2 = {
     "Exif.Casio2.ColorMode": int,
     "Exif.Casio2.Contrast2": list[int],
     "Exif.Casio2.Enhancement": int,
-    "Exif.Casio2.FirmwareDate": dt.date,
+    "Exif.Casio2.FirmwareDate": str,
     "Exif.Casio2.FlashDistance": int,
     "Exif.Casio2.FocusMode2": int,
     "Exif.Casio2.HometownCity": str,
@@ -202,7 +202,7 @@ EXIF_TAGS_PYEXVI2 = {
     "Exif.Casio2.WhiteBalance2": int,
     "Exif.Casio2.WhiteBalanceBias": list[int],
     "Exif.GPSInfo.GPSAltitude": FractionOrZero,
-    "Exif.GPSInfo.GPSAltitudeRef": int,
+    "Exif.GPSInfo.GPSAltitudeRef": FractionOrZero,
     "Exif.GPSInfo.GPSAreaInformation": str,
     "Exif.GPSInfo.GPSDOP": FractionOrZero,
     "Exif.GPSInfo.GPSDateStamp": dt.date,
@@ -223,6 +223,8 @@ EXIF_TAGS_PYEXVI2 = {
     "Exif.GPSInfo.GPSSpeedRef": str,
     "Exif.GPSInfo.GPSStatus": str,
     "Exif.GPSInfo.GPSTimeStamp": list[FractionOrZero],
+    "Exif.GPSInfo.GPSTrack": FractionOrZero,
+    "Exif.GPSInfo.GPSTrackRef": str,
     "Exif.GPSInfo.GPSVersionID": list[int],
     "Exif.Image.Artist": str,
     "Exif.Image.BitsPerSample": list[int],
@@ -296,6 +298,22 @@ EXIF_TAGS_PYEXVI2 = {
     "Exif.NikonIi.ISO2": int,
     "Exif.NikonIi.ISOExpansion": int,
     "Exif.NikonIi.ISOExpansion2": int,
+    "Exif.Olympus.BWMode": int,
+    "Exif.Olympus.CameraID": list[int],
+    "Exif.Olympus.CameraType": str,
+    "Exif.Olympus.DataDump1": list[int],
+    "Exif.Olympus.DigitalZoom": FractionOrZero,
+    "Exif.Olympus.FocalPlaneDiagonal": FractionOrZero,
+    "Exif.Olympus.LensDistortionParams": list[int],
+    "Exif.Olympus.Macro": int,
+    "Exif.Olympus.OneTouchWB": int,
+    "Exif.Olympus.PictureInfo": str,
+    "Exif.Olympus.PreCaptureFrames": int,
+    "Exif.Olympus.Quality": int,
+    "Exif.Olympus.SpecialMode": list[int],
+    "Exif.Olympus.WhiteBalanceBias": int,
+    "Exif.Olympus.WhiteBalanceBracket": int,
+    "Exif.Olympus.WhiteBoard": int,
     "Exif.Panasonic.AFAssistLamp": int,
     "Exif.Panasonic.AFMode": list[int],
     "Exif.Panasonic.AFPointPosition": list[FractionOrZero],
@@ -459,6 +477,7 @@ EXIF_TAGS_PYEXVI2 = {
     "Exif.Photo.SubSecTimeDigitized": int,
     "Exif.Photo.SubSecTimeOriginal": int,
     "Exif.Photo.SubjectArea": list[int],
+    "Exif.Photo.SubjectDistance": FractionOrZero,
     "Exif.Photo.SubjectDistanceRange": int,
     "Exif.Photo.UserComment": str,
     "Exif.Photo.WhiteBalance": int,
@@ -481,6 +500,14 @@ PATH_GOOGLE_DOWNLOAD = PATH_DROPBOX.joinpath(
 PATH_PHOTOS = PATH_DROPBOX.joinpath("Photos")
 PATH_MONTHLY = PATH_PHOTOS.joinpath("Monthly")
 PATH_STASH = PATH_PHOTOS.joinpath("Stash")
+PATHS_BAD_EXIF = {
+    PATH_GOOGLE_DOWNLOAD.joinpath(
+        "1/Takeout/Google Photos/2011-07-08 – 2011-07-29 — Shanghai, China/2011.07.08-29 — Shanghai — 2011.07.29 13.07.17.jpg"
+    ),
+    PATH_GOOGLE_DOWNLOAD.joinpath(
+        "1/Takeout/Google Photos/Photos from 2011/2011.07.08-29 — Shanghai — 2011.07.29 13.06.27.jpg"
+    ),
+}
 
 
 THUMBNAIL_SIZE = (600, 600)
