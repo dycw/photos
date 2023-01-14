@@ -25,7 +25,7 @@ babel==2.11.0
     # via jupyterlab-server
 backcall==0.2.0
     # via ipython
-beartype==0.11.0
+beartype==0.12.0
     # via dycw-utilities
 beautifulsoup4==4.11.1
     # via nbconvert
@@ -37,11 +37,11 @@ certifi==2022.12.7
     # via requests
 cffi==1.15.1
     # via argon2-cffi-bindings
-charset-normalizer==2.1.1
+charset-normalizer==3.0.1
     # via requests
 comm==0.1.2
     # via ipykernel
-debugpy==1.6.4
+debugpy==1.6.5
     # via ipykernel
 decorator==5.1.1
     # via ipython
@@ -49,13 +49,13 @@ defusedxml==0.7.1
     # via nbconvert
 docutils==0.19
     # via python-daemon
-dycw-utilities[atomicwrites,loguru,luigi,pandas]==0.3.0
+dycw-utilities[atomicwrites,loguru,luigi,pandas]==0.4.2
     # via photos (pyproject.toml)
 entrypoints==0.4
     # via jupyter-client
 executing==1.2.0
     # via stack-data
-exif==1.4.1
+exif==1.5.0
     # via photos (pyproject.toml)
 exifread==3.0.0
     # via photos (pyproject.toml)
@@ -63,10 +63,6 @@ fastjsonschema==2.16.2
     # via nbformat
 fqdn==1.5.1
     # via jsonschema
-gitdb==4.0.10
-    # via gitpython
-gitpython==3.1.29
-    # via photos (pyproject.toml)
 humanize==4.4.0
     # via photos (pyproject.toml)
 idna==3.4
@@ -74,12 +70,12 @@ idna==3.4
     #   anyio
     #   jsonschema
     #   requests
-ipykernel==6.20.0
+ipykernel==6.20.2
     # via
     #   nbclassic
     #   notebook
     #   qtconsole
-ipython==8.7.0
+ipython==8.8.0
     # via
     #   ipykernel
     #   jupyterlab
@@ -101,7 +97,7 @@ jinja2==3.1.2
     #   nbclassic
     #   nbconvert
     #   notebook
-json5==0.9.10
+json5==0.9.11
     # via jupyterlab-server
 jsonpointer==2.3
     # via jsonschema
@@ -110,7 +106,7 @@ jsonschema[format-nongpl]==4.17.3
     #   jupyter-events
     #   jupyterlab-server
     #   nbformat
-jupyter-client==7.4.8
+jupyter-client==7.4.9
     # via
     #   ipykernel
     #   jupyter-server
@@ -118,7 +114,7 @@ jupyter-client==7.4.8
     #   nbclient
     #   notebook
     #   qtconsole
-jupyter-core==5.1.1
+jupyter-core==5.1.3
     # via
     #   jupyter-client
     #   jupyter-server
@@ -129,21 +125,21 @@ jupyter-core==5.1.1
     #   nbformat
     #   notebook
     #   qtconsole
-jupyter-events==0.5.0
+jupyter-events==0.6.3
     # via jupyter-server
-jupyter-server==2.0.5
+jupyter-server==2.1.0
     # via
     #   jupyterlab
     #   jupyterlab-server
     #   nbclassic
     #   notebook-shim
-jupyter-server-terminals==0.4.3
+jupyter-server-terminals==0.4.4
     # via jupyter-server
 jupyterlab==3.5.2
     # via photos (pyproject.toml)
 jupyterlab-pygments==0.2.2
     # via nbconvert
-jupyterlab-server==2.17.0
+jupyterlab-server==2.19.0
     # via jupyterlab
 jupyterlab-vim==0.15.1
     # via photos (pyproject.toml)
@@ -151,9 +147,9 @@ lockfile==0.12.2
     # via python-daemon
 loguru==0.6.0
     # via dycw-utilities
-luigi==3.1.1
+luigi==3.2.0
     # via dycw-utilities
-markupsafe==2.1.1
+markupsafe==2.1.2
     # via
     #   jinja2
     #   nbconvert
@@ -169,12 +165,12 @@ nbclassic==0.4.8
     #   notebook
 nbclient==0.7.2
     # via nbconvert
-nbconvert==7.2.7
+nbconvert==7.2.8
     # via
     #   jupyter-server
     #   nbclassic
     #   notebook
-nbformat==5.7.1
+nbformat==5.7.3
     # via
     #   jupyter-server
     #   nbclassic
@@ -193,7 +189,7 @@ notebook-shim==0.2.2
     # via nbclassic
 numpy==1.24.1
     # via pandas
-packaging==22.0
+packaging==23.0
     # via
     #   ipykernel
     #   jupyter-server
@@ -201,7 +197,7 @@ packaging==22.0
     #   jupyterlab-server
     #   nbconvert
     #   qtpy
-pandas==1.5.2
+pandas==1.5.3
     # via dycw-utilities
 pandocfilters==1.5.0
     # via nbconvert
@@ -211,9 +207,9 @@ pexpect==4.8.0
     # via ipython
 pickleshare==0.7.5
     # via ipython
-pillow==9.3.0
+pillow==9.4.0
     # via photos (pyproject.toml)
-platformdirs==2.6.0
+platformdirs==2.6.2
     # via jupyter-core
 plum-py==0.8.5
     # via exif
@@ -236,7 +232,7 @@ pycparser==2.21
     # via cffi
 pyexiv2==2.8.1
     # via photos (pyproject.toml)
-pygments==2.13.0
+pygments==2.14.0
     # via
     #   ipython
     #   nbconvert
@@ -247,7 +243,7 @@ pyqt5-qt5==5.15.2
     # via pyqt5
 pyqt5-sip==12.11.0
     # via pyqt5
-pyrsistent==0.19.2
+pyrsistent==0.19.3
     # via jsonschema
 python-daemon==2.3.2
     # via luigi
@@ -259,13 +255,13 @@ python-dateutil==2.8.2
     #   pandas
 python-json-logger==2.0.4
     # via jupyter-events
-pytz==2022.7
+pytz==2022.7.1
     # via
     #   babel
     #   pandas
 pyyaml==6.0
     # via jupyter-events
-pyzmq==24.0.1
+pyzmq==25.0.0
     # via
     #   ipykernel
     #   jupyter-client
@@ -277,18 +273,22 @@ qtconsole==5.4.0
     # via photos (pyproject.toml)
 qtpy==2.3.0
     # via qtconsole
-requests==2.28.1
+requests==2.28.2
     # via jupyterlab-server
 rfc3339-validator==0.1.4
-    # via jsonschema
+    # via
+    #   jsonschema
+    #   jupyter-events
 rfc3986-validator==0.1.1
-    # via jsonschema
+    # via
+    #   jsonschema
+    #   jupyter-events
 send2trash==1.8.0
     # via
     #   jupyter-server
     #   nbclassic
     #   notebook
-setuptools==65.6.3
+setuptools==66.1.1
     # via python-daemon
 six==1.16.0
     # via
@@ -296,8 +296,6 @@ six==1.16.0
     #   bleach
     #   python-dateutil
     #   rfc3339-validator
-smmap==5.0.0
-    # via gitdb
 sniffio==1.3.0
     # via anyio
 soupsieve==2.3.2.post1
@@ -328,7 +326,7 @@ tornado==6.2
     #   nbclassic
     #   notebook
     #   terminado
-traitlets==5.8.0
+traitlets==5.8.1
     # via
     #   comm
     #   ipykernel
@@ -348,9 +346,9 @@ typing-extensions==4.4.0
     # via dycw-utilities
 uri-template==1.2.0
     # via jsonschema
-urllib3==1.26.13
+urllib3==1.26.14
     # via requests
-wcwidth==0.2.5
+wcwidth==0.2.6
     # via prompt-toolkit
 webcolors==1.12
     # via jsonschema

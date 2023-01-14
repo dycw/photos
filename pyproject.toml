@@ -1,7 +1,6 @@
 #### black ####################################################################
 [tool.black]
 line-length = 80
-skip-magic-trailing-comma = true
 target-version = ["py310"]
 
 #### coverage #################################################################
@@ -33,18 +32,6 @@ packages = ["src/photos"]
 [tool.hatch.version]
 path = "src/photos/__init__.py"
 
-#### isort ####################################################################
-[tool.isort]
-atomic = true
-case_sensitive = true
-float_to_top = true
-force_single_line = true
-line_length = 80
-lines_after_imports = 2
-profile = "black"
-remove_redundant_aliases = true
-skip_gitignore = true
-
 #### nitpick ##################################################################
 [tool.nitpick]
 style = [
@@ -62,15 +49,14 @@ requires-python = ">= 3.10"
 authors = [{ name = "Derek Wan", email = "d.wan@icloud.com" }]
 dependencies = [
   "boltons >= 21.0.0, < 22",
-  "dycw-utilities[atomicwrites,loguru,luigi,pandas] >= 0.3.0, < 1",
-  "exif >= 1.3.4, < 2",
+  "dycw-utilities[atomicwrites,loguru,luigi,pandas] >= 0.4.1, < 1",
+  "exif >= 1.5.0, < 2",
   "exifread >= 3.0.0, < 4",
-  "gitpython >= 3.1.27, < 4",
   "humanize >= 4.2.1, < 5",
   "ipython >= 8.4.0, < 9",
   "jupyterlab >= 3.4.3, < 4",
   "jupyterlab-vim >= 0.15.1, < 1",
-  "pillow >= 9.3.0, < 10",
+  "pillow >= 9.4.0, < 10",
   "pyexiv2 >= 2.7.1, < 3",
   "pyqt5 >= 5.15.7, < 6",
   "qtconsole >= 5.3.0, < 6",
@@ -82,36 +68,24 @@ dev = [
   "black",
   "bump2version",
   "exceptiongroup",
-  "flake8",
-  "flake8-absolute-import",
-  "flake8-annotations",
-  "flake8-bandit",
-  "flake8-bugbear",
-  "flake8-comprehensions",
-  "flake8-debugger",
-  "flake8-eradicate",
-  "flake8-executable",
-  "flake8-no-pep420",
-  "flake8-pie",
-  "flake8-print",
-  "flake8-simplify",
-  "flake8-unused-arguments",
   "hatch",
   "hypothesis",
-  "isort",
   "pip-tools",
   "pytest",
   "pytest-cov",
-  "pytest-xdist < 3.0.2", # https://github.com/pytest-dev/pytest-cov/issues/557
+  "pytest-xdist",
+  "ruff",
 ]
 
 #### pyright ##################################################################
 [tool.pyright]
 include = ["src"]
+exclude = ["**/__pycache__", ".direnv", ".git", ".venv"]
 pythonVersion = "3.10"
 executionEnvironments = [{ root = "src" }]
 typeCheckingMode = "strict"
 reportMissingTypeStubs = false
+reportIncompatibleMethodOverride = false
 reportMissingTypeArgument = false
 reportPrivateUsage = false
 reportPrivateImportUsage = false
@@ -138,10 +112,66 @@ addopts = [
   "--tb=native"
 ]
 filterwarnings = [
-  "error", 
+  "error",
   "ignore::DeprecationWarning",
   "ignore:Implicitly cleaning up <TemporaryDirectory '.*'>:ResourceWarning",
 ]
 minversion = "7.0"
 testpaths = ["src/tests"]
 xfail_strict = true
+
+#### ruff #####################################################################
+[tool.ruff]
+extend-ignore = [
+  "ANN101", # flake8-annotations, missing-type-self
+  "ANN401", # flake8-annotations, dynamically-typed-expression
+  "D100", # pydocstyle, public-module
+  "D104", # pydocstyle, public-package
+  "D105", # pydocstyle, magic-method
+  "D107", # pydocstyle, public-init
+  "D203", # pydocstyle, pep8
+  "D203", # pydocstyle, pep8
+  "D212", # pydocstyle, pep8
+  "D213", # pydocstyle, pep8
+  "D214", # pydocstyle, pep8
+  "D215", # pydocstyle, pep8
+  "D401", # pydocstyle, non-imperative-mood
+  "D404", # pydocstyle, pep8
+  "D405", # pydocstyle, pep8
+  "D406", # pydocstyle, pep8
+  "D407", # pydocstyle, pep8
+  "D408", # pydocstyle, pep8
+  "D409", # pydocstyle, pep8
+  "D410", # pydocstyle, pep8
+  "D411", # pydocstyle, pep8
+  "D413", # pydocstyle, pep8
+  "D415", # pydocstyle, pep8
+  "D416", # pydocstyle, pep8
+  "D417", # pydocstyle, pep8
+  "PD", # pandas-vet
+  "PT013", # flake8-pytest-style, incorrect-pytest-import
+
+]
+extend-select = ["ALL"]
+line-length = 80
+src = ["src", "tests"]
+target-version = "py310"
+
+[tool.ruff.flake8-tidy-imports]
+ban-relative-imports = "all"
+
+[tool.ruff.isort]
+force-single-line = true
+
+[tool.ruff.per-file-ignores]
+"src/tests/**/*.py" = [
+  "D", # pydocstyle
+  "FBT001", # flake8-boolean-trap, boolean-positional-arg-in-function-definition
+  "FBT003", # flake8-boolean-trap, boolean-positional-value-in-function-call
+  "PLR2004", # refactor, magic-value-comparison
+  "S101", # flake8-bandit, assert-used
+
+]
+
+[tool.ruff.pydocstyle]
+convention = "numpy"
