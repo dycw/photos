@@ -4,7 +4,6 @@ from typing import Union
 
 from photos.types import FractionOrZero
 
-
 EXIF_TAGS_PILLOW = {
     "Artist": str,
     "Copyright": str,
@@ -232,7 +231,6 @@ EXIF_TAGS_PYEXVI2 = {
     "Exif.Image.DateTime": dt.datetime,
     "Exif.Image.ExifTag": int,
     "Exif.Image.GPSTag": int,
-    "Exif.Image.HostComputer": str,
     "Exif.Image.HostComputer": str,
     "Exif.Image.ImageDescription": str,
     "Exif.Image.ImageLength": int,
@@ -495,17 +493,18 @@ EXIF_TAGS_PYEXVI2 = {
 PATH_DROPBOX = Path("/data/derek/Dropbox")
 PATH_CAMERA_UPLOADS = PATH_DROPBOX.joinpath("Camera Uploads")
 PATH_GOOGLE_DOWNLOAD = PATH_DROPBOX.joinpath(
-    "Apps", "Google Download Your Data"
+    "Apps",
+    "Google Download Your Data",
 )
 PATH_PHOTOS = PATH_DROPBOX.joinpath("Photos")
 PATH_MONTHLY = PATH_PHOTOS.joinpath("Monthly")
 PATH_STASH = PATH_PHOTOS.joinpath("Stash")
 PATHS_BAD_EXIF = {
     PATH_GOOGLE_DOWNLOAD.joinpath(
-        "1/Takeout/Google Photos/2011-07-08 – 2011-07-29 — Shanghai, China/2011.07.08-29 — Shanghai — 2011.07.29 13.07.17.jpg"
+        "1/Takeout/Google Photos/2011-07-08 - 2011-07-29 — Shanghai, China/2011.07.08-29 — Shanghai — 2011.07.29 13.07.17.jpg",  # noqa: E501
     ),
     PATH_GOOGLE_DOWNLOAD.joinpath(
-        "1/Takeout/Google Photos/Photos from 2011/2011.07.08-29 — Shanghai — 2011.07.29 13.06.27.jpg"
+        "1/Takeout/Google Photos/Photos from 2011/2011.07.08-29 — Shanghai — 2011.07.29 13.06.27.jpg",  # noqa: E501
     ),
 }
 

@@ -4,7 +4,6 @@ from functools import cache
 from pathlib import Path
 from typing import cast
 
-from PIL.Image import Image
 from hypothesis import given
 from hypothesis.strategies import SearchStrategy
 from hypothesis.strategies import sampled_from
@@ -15,7 +14,9 @@ from luigi import Task
 from luigi import build
 from pandas import read_pickle
 from pandas import to_pickle
+from PIL.Image import Image
 from utilities.atomicwrites import writer
+from utilities.datetime import UTC
 from utilities.hypothesis import assume_does_not_raise
 from utilities.tempfile import gettempdir
 
@@ -28,14 +29,16 @@ from photos.utilities import open_image_pillow
 
 class GetPaths(Task):
     as_of = cast(
-        dt.datetime, DateMinuteParameter(interval=30, default=dt.datetime.now())
+        dt.datetime,
+        DateMinuteParameter(interval=30, default=dt.datetime.now(tz=UTC)),
     )
 
-    def output(self) -> LocalTarget:  # type: ignore
+    def output(self) -> LocalTarget:
         return LocalTarget(
             gettempdir().joinpath(
-                type(self).__name__, f"{self.as_of:%Y%m%d%H%M%S}.gz"
-            )
+                type(self).__name__,
+                f"{self.as_of:%Y%m%d%H%M%S}.gz",
+            ),
         )
 
     def run(self) -> None:

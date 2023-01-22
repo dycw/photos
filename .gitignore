@@ -131,3 +131,6 @@ dmypy.json
 
 # Jupyter
 *.ipynb
+
+# ruff
+.ruff_cache/

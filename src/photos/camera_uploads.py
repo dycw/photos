@@ -8,12 +8,13 @@ from enum import unique
 from pathlib import Path
 from typing import Any
 
-from IPython.display import display
 from boltons.fileutils import atomic_rename
 from humanize import naturalsize
+from IPython.display import display
 from loguru import logger
 from tabulate import tabulate
 from utilities.pathlib import PathLike
+from utilities.typing import never
 
 from photos.constants import PATH_CAMERA_UPLOADS
 from photos.utilities import get_file_size
@@ -40,7 +41,7 @@ class _Choice(Enum):
     skip = "s"
     stash = "st"
     auto = "auto"
-    quit = "q"
+    quit_ = "q"
 
 
 class Organizer:
@@ -59,8 +60,10 @@ class Organizer:
 
     @property
     def data(self) -> _Data:
+        """The data."""
         if (data := self._data) is None:
-            raise AttributeError(f"{self._data=}")
+            msg = f"{self._data=}"
+            raise AttributeError(msg)
         return data
 
     @data.setter
@@ -68,19 +71,23 @@ class Organizer:
         self._data = value
 
     @property
-    def dir(self) -> Path:
-        if (dir := self._dir) is None:
-            raise AttributeError(f"{self._dir=}")
-        return dir
+    def dir_(self) -> Path:
+        """The directory."""
+        if (dir_ := self._dir) is None:
+            msg = f"{self._dir=}"
+            raise AttributeError(msg)
+        return dir_
 
-    @dir.setter
-    def dir(self, value: Path, /) -> None:
+    @dir_.setter
+    def dir_(self, value: Path, /) -> None:
         self._dir = Path(value)
 
     @property
     def rotate(self) -> int:
+        """Rotate the image."""
         if (rotate := self._rotate) is None:
-            raise AttributeError(f"{self._rotate=}")
+            msg = f"{self._rotate=}"
+            raise AttributeError(msg)
         return rotate
 
     @rotate.setter
@@ -89,23 +96,26 @@ class Organizer:
 
     @property
     def skips(self) -> set[Path]:
+        """The skips so far."""
         if (skips := self._skips) is None:
-            raise AttributeError(f"{self._skips=}")
+            msg = f"{self._skips=}"
+            raise AttributeError(msg)
         return skips
 
     # methods
 
-    def start(self, dir: PathLike = PATH_CAMERA_UPLOADS, /) -> None:
-        self.dir = Path(dir)
+    def start(self, dir_: PathLike = PATH_CAMERA_UPLOADS, /) -> None:
+        """Start the organizer."""
+        self.dir_ = Path(dir_)
         while True:
             try:
                 self._get_next_data()
             except _NoNextFileError:
                 break
             else:
-                if self._loop_choices() is _Choice.quit:
+                if self._loop_choices() is _Choice.quit_:
                     break
-        purge_empty_directories(self.dir)
+        purge_empty_directories(self.dir_)
 
     def _choice_auto(self) -> _Choice:
         while True:
@@ -119,7 +129,7 @@ class Organizer:
                 else:
                     self._choice_stash()
             except _NoNextFileError:
-                return _Choice.quit
+                return _Choice.quit_
 
     def _choice_delete(self) -> None:
         path = self.data.path
@@ -128,7 +138,7 @@ class Organizer:
         self._get_next_data()
 
     def _choice_overview(self) -> None:
-        display(make_thumbnail(self.data.image.rotate(self._rotate)))
+        _ = display(make_thumbnail(self.data.image.rotate(self._rotate)))
 
         def yield_metadata() -> Iterator[tuple[str, Any]]:
             data = self.data
@@ -145,7 +155,8 @@ class Organizer:
 
     def _choice_move(self) -> None:
         if (dest := (data := self.data).destination) is None:
-            raise RuntimeError("Cannot call 'MOVE' when destination is missing")
+            msg = "Cannot call 'MOVE' when destination is missing"
+            raise RuntimeError(msg)
         path = data.path
         logger.info(
             "\n\nMoving:\n{}\n\n",
@@ -204,17 +215,17 @@ class Organizer:
         try:
             path = next(
                 p
-                for p in get_paths_randomly(self.dir)
+                for p in get_paths_randomly(self.dir_)
                 if p.is_file() and is_supported(p) and p not in self.skips
             )
         except StopIteration:
-            logger.info("No more files found in {}", self.dir)
+            logger.info("No more files found in {}", self.dir_)
             raise _NoNextFileError from None
         else:
             self.data = _Data(path)
             self._choice_overview()
 
-    def _loop_choices(self) -> _Choice:
+    def _loop_choices(self) -> _Choice:  # noqa: C901
         while True:
             if (choice := self._get_choice()) is _Choice.overview:
                 self._choice_overview()
@@ -236,10 +247,10 @@ class Organizer:
                 self._choice_stash()
             elif choice is _Choice.auto:
                 return self._choice_auto()
-            elif choice is _Choice.quit:
+            elif choice is _Choice.quit_:  # noqa: RET505
                 return choice
             else:
-                raise ValueError(f"Invalid {choice=}")
+                return never(choice)
 
 
 class _NoNextFileError(FileNotFoundError):

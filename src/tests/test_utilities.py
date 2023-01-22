@@ -1,14 +1,14 @@
 import datetime as dt
+from datetime.timezone import utc
 from itertools import chain
 from pathlib import Path
 from re import search
 from shutil import copy
 from typing import Any
 
-from PIL.Image import Image
-from git.repo import Repo
 from hypothesis import given
 from hypothesis.strategies import datetimes
+from PIL.Image import Image
 from pytest import mark
 from tabulate import tabulate
 from utilities.hypothesis import assume_does_not_raise
@@ -53,7 +53,7 @@ def test_get_parsed_exif_tags_pillow(image: Image) -> None:
         assert key in EXIF_TAGS_PILLOW, f"No expected type:\n{tabulate(data)}"
         exp = EXIF_TAGS_PILLOW[key]
         assert is_instance(value, exp), "Type error:\n{}".format(
-            tabulate(chain(data, [("expected", exp)]))
+            tabulate(chain(data, [("expected", exp)])),
         )
 
 
@@ -68,7 +68,7 @@ def test_get_parsed_exif_tags_pyexiv2(path: Path) -> None:
         assert key in EXIF_TAGS_PYEXVI2, f"No expected type:\n{tabulate(data)}"
         exp = EXIF_TAGS_PYEXVI2[key]
         assert is_instance(value, exp), "Type error:\n{}".format(
-            tabulate(chain(data, [("expected", exp)]))
+            tabulate(chain(data, [("expected", exp)])),
         )
 
 
@@ -82,7 +82,8 @@ class TestGetPathMonthly:
             parts = dest.parts
             assert search(r"^\d{4}-\d{2}$", parts[-2])
             assert search(
-                r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.jpg$", parts[-1]
+                r"^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.jpg$",
+                parts[-1],
             )
 
     def test_specific(self) -> None:
@@ -90,11 +91,14 @@ class TestGetPathMonthly:
         result = get_path_monthly(path, raise_if_missing=False)
         assert result is not None
         expected = PathMonthly(
-            path, dt.datetime(2000, 1, 1, 12, 34, 56), "filename"
+            path,
+            dt.datetime(2000, 1, 1, 12, 34, 56).astimezone(utc),
+            "filename",
         )
         assert result == expected
         assert result.destination == PATH_MONTHLY.joinpath(
-            "2000-01", "2000-01-01 12:34:56.txt"
+            "2000-01",
+            "2000-01-01 12:34:56.txt",
         )
 
 
@@ -124,13 +128,13 @@ def test_get_resolution(image: Image) -> None:
         _ = get_resolution(image)
 
 
-@mark.parametrize(["text", "expected"], [("0xc6d2", True), ("GPSTag", False)])
+@mark.parametrize(("text", "expected"), [("0xc6d2", True), ("GPSTag", False)])
 def test_is_hex(text: str, expected: bool) -> None:
     assert is_hex(text) is expected
 
 
 @mark.parametrize(
-    ["obj", "cls", "expected"],
+    ("obj", "cls", "expected"),
     [
         (0, int, True),
         (0, float, False),
@@ -154,7 +158,8 @@ def test_open_image(path: Path) -> None:
     datetime=datetimes().filter(lambda x: x.microsecond == 0),
 )
 def test_write_datetime(
-    temp_dir: TemporaryDirectory, datetime: dt.datetime
+    temp_dir: TemporaryDirectory,
+    datetime: dt.datetime,
 ) -> None:
     repo = Repo(".", search_parent_directories=True)
     assert (root := repo.working_tree_dir) is not None
