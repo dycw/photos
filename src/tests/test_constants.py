@@ -2,11 +2,13 @@ from pathlib import Path
 
 from pytest import mark
 
-from photos.constants import PATH_CAMERA_UPLOADS
-from photos.constants import PATH_DROPBOX
-from photos.constants import PATH_GOOGLE_DOWNLOAD
-from photos.constants import PATH_MONTHLY
-from photos.constants import PATH_PHOTOS
+from photos.constants import (
+    PATH_CAMERA_UPLOADS,
+    PATH_DROPBOX,
+    PATH_GOOGLE_DOWNLOAD,
+    PATH_MONTHLY,
+    PATH_PHOTOS,
+)
 
 
 @mark.parametrize(

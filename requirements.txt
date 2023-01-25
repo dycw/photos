@@ -29,7 +29,7 @@ beartype==0.12.0
     # via dycw-utilities
 beautifulsoup4==4.11.1
     # via nbconvert
-bleach==5.0.1
+bleach==6.0.0
     # via nbconvert
 boltons==21.0.0
     # via photos (pyproject.toml)
@@ -41,7 +41,7 @@ charset-normalizer==3.0.1
     # via requests
 comm==0.1.2
     # via ipykernel
-debugpy==1.6.5
+debugpy==1.6.6
     # via ipykernel
 decorator==5.1.1
     # via ipython
@@ -49,7 +49,7 @@ defusedxml==0.7.1
     # via nbconvert
 docutils==0.19
     # via python-daemon
-dycw-utilities[atomicwrites,loguru,luigi,pandas]==0.4.2
+dycw-utilities[atomicwrites,loguru,luigi,pandas]==0.4.4
     # via photos (pyproject.toml)
 entrypoints==0.4
     # via jupyter-client
@@ -114,7 +114,7 @@ jupyter-client==7.4.9
     #   nbclient
     #   notebook
     #   qtconsole
-jupyter-core==5.1.3
+jupyter-core==5.1.5
     # via
     #   jupyter-client
     #   jupyter-server
@@ -135,7 +135,7 @@ jupyter-server==2.1.0
     #   notebook-shim
 jupyter-server-terminals==0.4.4
     # via jupyter-server
-jupyterlab==3.5.2
+jupyterlab==3.5.3
     # via photos (pyproject.toml)
 jupyterlab-pygments==0.2.2
     # via nbconvert
@@ -165,7 +165,7 @@ nbclassic==0.4.8
     #   notebook
 nbclient==0.7.2
     # via nbconvert
-nbconvert==7.2.8
+nbconvert==7.2.9
     # via
     #   jupyter-server
     #   nbclassic
@@ -213,7 +213,7 @@ platformdirs==2.6.2
     # via jupyter-core
 plum-py==0.8.5
     # via exif
-prometheus-client==0.15.0
+prometheus-client==0.16.0
     # via
     #   jupyter-server
     #   nbclassic

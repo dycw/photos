@@ -9,10 +9,7 @@ from pathlib import Path
 from random import shuffle
 from re import search
 from shutil import rmtree
-from typing import Any
-from typing import Literal
-from typing import get_args
-from typing import get_origin
+from typing import Any, Literal, get_args, get_origin
 
 import pyexiv2
 from beartype.door import die_if_unbearable
@@ -23,17 +20,17 @@ from PIL.Image import Image as PILImage
 from PIL.Image import open as _open
 from PIL.ImageOps import contain
 from pyexiv2 import Image as pyexiv2Image
-from utilities.pathlib import PathLike
-from utilities.pathlib import ensure_suffix
+from utilities.pathlib import PathLike, ensure_suffix
 from utilities.re import extract_group
 
-from photos.constants import EXIF_TAGS_PYEXVI2
-from photos.constants import PATH_MONTHLY
-from photos.constants import PATH_STASH
-from photos.constants import PATHS_BAD_EXIF
-from photos.constants import THUMBNAIL_SIZE
-from photos.types import FractionOrZero
-from photos.types import Zero
+from photos.constants import (
+    EXIF_TAGS_PYEXVI2,
+    PATH_MONTHLY,
+    PATH_STASH,
+    PATHS_BAD_EXIF,
+    THUMBNAIL_SIZE,
+)
+from photos.types import FractionOrZero, Zero
 
 
 def get_file_size(path: PathLike, /) -> int:
@@ -205,7 +202,7 @@ def is_supported(path: PathLike, /) -> bool:
 
 def open_image_pillow(path: PathLike, /) -> PILImage:
     """Open a Pillow image."""
-    with open(path, mode="rb") as file:
+    with Path(path).open(mode="rb") as file:
         image = _open(file)
         image.load()
     return image

@@ -6,7 +6,7 @@ repos:
       - id: pyupgrade
         args: [--py310-plus]
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev: v0.0.229
+    rev: v0.0.233
     hooks:
       - id: ruff
         args: [--fix]
