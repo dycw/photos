@@ -11,31 +11,32 @@ from hypothesis.strategies import datetimes
 from PIL.Image import Image
 from pytest import mark
 from tabulate import tabulate
-from utilities.hypothesis import assume_does_not_raise
-from utilities.hypothesis import temp_dirs
-from utilities.tempfile import TemporaryDirectory
-from utilities.tempfile import gettempdir
+from utilities.hypothesis import assume_does_not_raise, temp_dirs
+from utilities.tempfile import TemporaryDirectory, gettempdir
 
-from photos.constants import EXIF_TAGS_PILLOW
-from photos.constants import EXIF_TAGS_PYEXVI2
-from photos.constants import PATH_MONTHLY
-from photos.constants import PATH_STASH
-from photos.utilities import PathMonthly
-from photos.utilities import get_file_size
-from photos.utilities import get_parsed_exif_tags
-from photos.utilities import get_parsed_exif_tags_pillow
-from photos.utilities import get_parsed_exif_tags_pyexiv2
-from photos.utilities import get_path_monthly
-from photos.utilities import get_path_stash
-from photos.utilities import get_raw_exif_tags_pillow
-from photos.utilities import get_raw_exif_tags_pyexiv2
-from photos.utilities import get_resolution
-from photos.utilities import is_hex
-from photos.utilities import is_instance
-from photos.utilities import open_image_pillow
-from photos.utilities import write_datetime
-from tests.test_strategies import images
-from tests.test_strategies import paths
+from photos.constants import (
+    EXIF_TAGS_PILLOW,
+    EXIF_TAGS_PYEXVI2,
+    PATH_MONTHLY,
+    PATH_STASH,
+)
+from photos.utilities import (
+    PathMonthly,
+    get_file_size,
+    get_parsed_exif_tags,
+    get_parsed_exif_tags_pillow,
+    get_parsed_exif_tags_pyexiv2,
+    get_path_monthly,
+    get_path_stash,
+    get_raw_exif_tags_pillow,
+    get_raw_exif_tags_pyexiv2,
+    get_resolution,
+    is_hex,
+    is_instance,
+    open_image_pillow,
+    write_datetime,
+)
+from tests.test_strategies import images, paths
 
 
 @given(path=paths())
@@ -88,7 +89,7 @@ class TestGetPathMonthly:
 
     def test_specific(self) -> None:
         path = gettempdir().joinpath("2000-01-01 12:34:56.txt")
-        result = get_path_monthly(path, raise_if_missing=False)
+        result = get_path_monthly(path)
         assert result is not None
         expected = PathMonthly(
             path,

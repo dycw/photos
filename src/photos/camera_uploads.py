@@ -3,8 +3,7 @@ from __future__ import annotations
 from collections.abc import Iterator
 from contextlib import suppress
 from dataclasses import dataclass
-from enum import Enum
-from enum import unique
+from enum import Enum, unique
 from pathlib import Path
 from typing import Any
 
@@ -17,16 +16,18 @@ from utilities.pathlib import PathLike
 from utilities.typing import never
 
 from photos.constants import PATH_CAMERA_UPLOADS
-from photos.utilities import get_file_size
-from photos.utilities import get_parsed_exif_tags
-from photos.utilities import get_path_monthly
-from photos.utilities import get_path_stash
-from photos.utilities import get_paths_randomly
-from photos.utilities import get_resolution
-from photos.utilities import is_supported
-from photos.utilities import make_thumbnail
-from photos.utilities import open_image_pillow
-from photos.utilities import purge_empty_directories
+from photos.utilities import (
+    get_file_size,
+    get_parsed_exif_tags,
+    get_path_monthly,
+    get_path_stash,
+    get_paths_randomly,
+    get_resolution,
+    is_supported,
+    make_thumbnail,
+    open_image_pillow,
+    purge_empty_directories,
+)
 
 
 @unique

@@ -5,26 +5,21 @@ from pathlib import Path
 from typing import cast
 
 from hypothesis import given
-from hypothesis.strategies import SearchStrategy
-from hypothesis.strategies import sampled_from
-from luigi import DateMinuteParameter
-from luigi import Event
-from luigi import LocalTarget
-from luigi import Task
-from luigi import build
-from pandas import read_pickle
-from pandas import to_pickle
+from hypothesis.strategies import SearchStrategy, sampled_from
+from luigi import DateMinuteParameter, Event, LocalTarget, Task, build
+from pandas import read_pickle, to_pickle
 from PIL.Image import Image
 from utilities.atomicwrites import writer
 from utilities.datetime import UTC
 from utilities.hypothesis import assume_does_not_raise
 from utilities.tempfile import gettempdir
 
-from photos.constants import PATH_CAMERA_UPLOADS
-from photos.constants import PATH_GOOGLE_DOWNLOAD
-from photos.constants import PATH_PHOTOS
-from photos.utilities import is_supported
-from photos.utilities import open_image_pillow
+from photos.constants import (
+    PATH_CAMERA_UPLOADS,
+    PATH_GOOGLE_DOWNLOAD,
+    PATH_PHOTOS,
+)
+from photos.utilities import is_supported, open_image_pillow
 
 
 class GetPaths(Task):
