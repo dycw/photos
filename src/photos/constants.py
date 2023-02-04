@@ -1,6 +1,5 @@
 import datetime as dt
 from pathlib import Path
-from typing import Union
 
 from photos.types import FractionOrZero
 
@@ -277,7 +276,7 @@ EXIF_TAGS_PYEXVI2 = {
     "Exif.Nikon3.NoiseReduction": str,
     "Exif.Nikon3.Quality": str,
     "Exif.Nikon3.RetouchHistory": list[int],
-    "Exif.Nikon3.Saturation": Union[str, list[str]],
+    "Exif.Nikon3.Saturation": str | list[str],
     "Exif.Nikon3.SceneAssist": str,
     "Exif.Nikon3.SceneMode": str,
     "Exif.Nikon3.Sharpening": str,

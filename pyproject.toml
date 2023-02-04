@@ -149,8 +149,12 @@ extend-ignore = [
   "D416", # pydocstyle, pep8
   "D417", # pydocstyle, pep8
   "PD", # pandas-vet
+  "PLR0913", # refactor, too-many-arguments
   "PT012", # flake8-pytest-style, raises-with-multiple-statements
   "PT013", # flake8-pytest-style, incorrect-pytest-import
+  "TCH001", # flake8-type-checking, typing-only-first-party-import
+  "TCH002", # flake8-type-checking, typing-only-third-party-import
+  "TCH003", # flake8-type-checking, typing-only-standard-library-import
   "TRY200", # tryceratops, reraise-no-cause
   "TRY301", # tryceratops, raise-within-try
 
