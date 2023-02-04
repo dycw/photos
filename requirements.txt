@@ -4,6 +4,10 @@
 #
 #    pip-compile --allow-unsafe pyproject.toml
 #
+aiofiles==22.1.0
+    # via ypy-websocket
+aiosqlite==0.18.0
+    # via ypy-websocket
 anyio==3.6.2
     # via jupyter-server
 argon2-cffi==21.3.0
@@ -27,7 +31,7 @@ backcall==0.2.0
     # via ipython
 beartype==0.12.0
     # via dycw-utilities
-beautifulsoup4==4.11.1
+beautifulsoup4==4.11.2
     # via nbconvert
 bleach==6.0.0
     # via nbconvert
@@ -49,13 +53,11 @@ defusedxml==0.7.1
     # via nbconvert
 docutils==0.19
     # via python-daemon
-dycw-utilities[atomicwrites,loguru,luigi,pandas]==0.4.4
+dycw-utilities[atomicwrites,loguru,luigi,pandas]==0.4.5
     # via photos (pyproject.toml)
-entrypoints==0.4
-    # via jupyter-client
 executing==1.2.0
     # via stack-data
-exif==1.5.0
+exif==1.6.0
     # via photos (pyproject.toml)
 exifread==3.0.0
     # via photos (pyproject.toml)
@@ -63,19 +65,19 @@ fastjsonschema==2.16.2
     # via nbformat
 fqdn==1.5.1
     # via jsonschema
-humanize==4.4.0
+humanize==4.5.0
     # via photos (pyproject.toml)
 idna==3.4
     # via
     #   anyio
     #   jsonschema
     #   requests
-ipykernel==6.20.2
+ipykernel==6.21.1
     # via
     #   nbclassic
     #   notebook
     #   qtconsole
-ipython==8.8.0
+ipython==8.9.0
     # via
     #   ipykernel
     #   jupyterlab
@@ -106,7 +108,7 @@ jsonschema[format-nongpl]==4.17.3
     #   jupyter-events
     #   jupyterlab-server
     #   nbformat
-jupyter-client==7.4.9
+jupyter-client==8.0.2
     # via
     #   ipykernel
     #   jupyter-server
@@ -114,8 +116,9 @@ jupyter-client==7.4.9
     #   nbclient
     #   notebook
     #   qtconsole
-jupyter-core==5.1.5
+jupyter-core==5.2.0
     # via
+    #   ipykernel
     #   jupyter-client
     #   jupyter-server
     #   jupyterlab
@@ -125,17 +128,28 @@ jupyter-core==5.1.5
     #   nbformat
     #   notebook
     #   qtconsole
-jupyter-events==0.6.3
-    # via jupyter-server
-jupyter-server==2.1.0
+jupyter-events==0.5.0
     # via
+    #   jupyter-server
+    #   jupyter-server-fileid
+jupyter-server==2.2.1
+    # via
+    #   jupyter-server-fileid
     #   jupyterlab
     #   jupyterlab-server
     #   nbclassic
     #   notebook-shim
+jupyter-server-fileid==0.6.0
+    # via jupyter-server-ydoc
 jupyter-server-terminals==0.4.4
     # via jupyter-server
-jupyterlab==3.5.3
+jupyter-server-ydoc==0.6.1
+    # via jupyterlab
+jupyter-ydoc==0.2.2
+    # via
+    #   jupyter-server-ydoc
+    #   jupyterlab
+jupyterlab==3.6.1
     # via photos (pyproject.toml)
 jupyterlab-pygments==0.2.2
     # via nbconvert
@@ -159,7 +173,7 @@ matplotlib-inline==0.1.6
     #   ipython
 mistune==2.0.4
     # via nbconvert
-nbclassic==0.4.8
+nbclassic==0.5.1
     # via
     #   jupyterlab
     #   notebook
@@ -180,7 +194,6 @@ nbformat==5.7.3
 nest-asyncio==1.5.6
     # via
     #   ipykernel
-    #   jupyter-client
     #   nbclassic
     #   notebook
 notebook==6.5.2
@@ -237,11 +250,11 @@ pygments==2.14.0
     #   ipython
     #   nbconvert
     #   qtconsole
-pyqt5==5.15.7
+pyqt5==5.15.8
     # via photos (pyproject.toml)
 pyqt5-qt5==5.15.2
     # via pyqt5
-pyqt5-sip==12.11.0
+pyqt5-sip==12.11.1
     # via pyqt5
 pyrsistent==0.19.3
     # via jsonschema
@@ -276,20 +289,14 @@ qtpy==2.3.0
 requests==2.28.2
     # via jupyterlab-server
 rfc3339-validator==0.1.4
-    # via
-    #   jsonschema
-    #   jupyter-events
+    # via jsonschema
 rfc3986-validator==0.1.1
-    # via
-    #   jsonschema
-    #   jupyter-events
+    # via jsonschema
 send2trash==1.8.0
     # via
     #   jupyter-server
     #   nbclassic
     #   notebook
-setuptools==66.1.1
-    # via python-daemon
 six==1.16.0
     # via
     #   asttokens
@@ -314,8 +321,6 @@ terminado==0.17.1
     #   notebook
 tinycss2==1.2.1
     # via nbconvert
-tomli==2.0.1
-    # via jupyterlab
 tornado==6.2
     # via
     #   ipykernel
@@ -326,7 +331,7 @@ tornado==6.2
     #   nbclassic
     #   notebook
     #   terminado
-traitlets==5.8.1
+traitlets==5.9.0
     # via
     #   comm
     #   ipykernel
@@ -356,5 +361,15 @@ webencodings==0.5.1
     # via
     #   bleach
     #   tinycss2
-websocket-client==1.4.2
+websocket-client==1.5.0
     # via jupyter-server
+y-py==0.5.5
+    # via
+    #   jupyter-ydoc
+    #   ypy-websocket
+ypy-websocket==0.8.2
+    # via jupyter-server-ydoc
+
+# The following packages are considered to be unsafe in a requirements file:
+setuptools==67.1.0
+    # via python-daemon
