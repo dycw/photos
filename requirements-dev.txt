@@ -46,8 +46,6 @@ boltons==21.0.0
     # via photos (pyproject.toml)
 build==0.10.0
     # via pip-tools
-bump2version==1.0.1
-    # via photos (pyproject.toml)
 certifi==2022.12.7
     # via
     #   httpcore
@@ -81,7 +79,7 @@ distlib==0.3.6
     # via virtualenv
 docutils==0.19
     # via python-daemon
-dycw-utilities[atomicwrites,loguru,luigi,pandas]==0.4.5
+dycw-utilities[atomicwrites,loguru,luigi,pandas]==0.5.3
     # via photos (pyproject.toml)
 editables==0.3
     # via hatchling
@@ -111,11 +109,11 @@ httpcore==0.16.3
     # via httpx
 httpx==0.23.3
     # via hatch
-humanize==4.5.0
+humanize==4.6.0
     # via photos (pyproject.toml)
 hyperlink==21.0.0
     # via hatch
-hypothesis==6.66.1
+hypothesis==6.67.1
     # via photos (pyproject.toml)
 idna==3.4
     # via
@@ -243,7 +241,7 @@ mistune==2.0.4
     # via nbconvert
 more-itertools==9.0.0
     # via jaraco-classes
-mypy-extensions==0.4.3
+mypy-extensions==1.0.0
     # via black
 nbclassic==0.5.1
     # via
@@ -272,7 +270,7 @@ notebook==6.5.2
     # via jupyterlab
 notebook-shim==0.2.2
     # via nbclassic
-numpy==1.24.1
+numpy==1.24.2
     # via pandas
 packaging==23.0
     # via
@@ -348,7 +346,7 @@ pyperclip==1.8.2
     # via hatch
 pyproject-hooks==1.0.0
     # via build
-pyqt5==5.15.8
+pyqt5==5.15.9
     # via photos (pyproject.toml)
 pyqt5-qt5==5.15.2
     # via pyqt5
@@ -491,7 +489,7 @@ webencodings==0.5.1
     # via
     #   bleach
     #   tinycss2
-websocket-client==1.5.0
+websocket-client==1.5.1
     # via jupyter-server
 wheel==0.38.4
     # via pip-tools
@@ -501,7 +499,7 @@ y-py==0.5.5
     #   ypy-websocket
 ypy-websocket==0.8.2
     # via jupyter-server-ydoc
-zipp==3.12.0
+zipp==3.12.1
     # via importlib-metadata
 
 # The following packages are considered to be unsafe in a requirements file:

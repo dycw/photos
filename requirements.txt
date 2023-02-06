@@ -53,7 +53,7 @@ defusedxml==0.7.1
     # via nbconvert
 docutils==0.19
     # via python-daemon
-dycw-utilities[atomicwrites,loguru,luigi,pandas]==0.4.5
+dycw-utilities[atomicwrites,loguru,luigi,pandas]==0.5.3
     # via photos (pyproject.toml)
 executing==1.2.0
     # via stack-data
@@ -65,7 +65,7 @@ fastjsonschema==2.16.2
     # via nbformat
 fqdn==1.5.1
     # via jsonschema
-humanize==4.5.0
+humanize==4.6.0
     # via photos (pyproject.toml)
 idna==3.4
     # via
@@ -200,7 +200,7 @@ notebook==6.5.2
     # via jupyterlab
 notebook-shim==0.2.2
     # via nbclassic
-numpy==1.24.1
+numpy==1.24.2
     # via pandas
 packaging==23.0
     # via
@@ -250,7 +250,7 @@ pygments==2.14.0
     #   ipython
     #   nbconvert
     #   qtconsole
-pyqt5==5.15.8
+pyqt5==5.15.9
     # via photos (pyproject.toml)
 pyqt5-qt5==5.15.2
     # via pyqt5
@@ -361,7 +361,7 @@ webencodings==0.5.1
     # via
     #   bleach
     #   tinycss2
-websocket-client==1.5.0
+websocket-client==1.5.1
     # via jupyter-server
 y-py==0.5.5
     # via
