@@ -49,7 +49,7 @@ requires-python = ">= 3.10"
 authors = [{ name = "Derek Wan", email = "d.wan@icloud.com" }]
 dependencies = [
   "boltons >= 21.0.0, < 22",
-  "dycw-utilities[atomicwrites,loguru,luigi,pandas] >= 0.4.4, < 1",
+  "dycw-utilities[atomicwrites,loguru,luigi,pandas] >= 0.5.3",
   "exif >= 1.5.0, < 2",
   "exifread >= 3.0.0, < 4",
   "humanize >= 4.2.1, < 5",
@@ -66,7 +66,6 @@ dependencies = [
 [project.optional-dependencies]
 dev = [
   "black",
-  "bump2version",
   "exceptiongroup",
   "hatch",
   "hypothesis",
